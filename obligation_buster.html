@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ノルマ消滅器 Obligation Buster</title>
+<style>
+ body {
+  background:#1f2933;
+  color:#e6e6e6;
+  font-family:'Arial Rounded MT Bold','Helvetica Rounded',Arial,sans-serif;
+  text-align:center;
+  margin:0;
+  padding:20px;
+ }
+ input, button {
+  font-size:16px;
+  padding:8px 12px;
+  border:none;
+  border-radius:5px;
+  margin:5px;
+ }
+ #addTaskBtn {
+  background:#ff5c5c;
+  color:#fff;
+ }
+ .bombButton {
+  background:#ff5c5c;
+  color:#fff;
+  cursor:pointer;
+ }
+ .taskItem {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  width:80%;
+  max-width:500px;
+  margin:10px auto;
+  padding:5px 10px;
+  background:rgba(255,255,255,0.05);
+  border-radius:5px;
+ }
+ .fade-out {
+  animation:fadeOut 0.8s forwards;
+ }
+ @keyframes fadeOut {
+  to { opacity:0; transform:scale(0.8); }
+ }
+ #messageArea { margin-top:20px; font-size:18px; color:#ffe38f; min-height:24px; }
+ #counterArea { margin-top:20px; font-size:18px; }
+</style>
+</head>
+<body>
+<h1>ノルマ消滅器 Obligation Buster</h1>
+<div>
+ <input id="taskInput" placeholder="上司にメール返信">
+ <input id="tagInput" placeholder="#疲労 #無意味">
+ <button id="addTaskBtn">登録</button>
+</div>
+<ul id="taskList"></ul>
+<div id="messageArea" class="message"></div>
+<div id="counterArea" class="counter">今までに0件のノルマを爆破しました</div>
+<script>
+const tasks = [];
+let destroyedCount = 0;
+const messages = [
+ "あなたの心は義務よりも大切です",
+ "やらない決断こそ、真の意思",
+ "今は休む時。それでいいのです",
+ "あなたはすでに十分がんばっています",
+ "タスクを爆破して、世界はちょっと平和になりました"
+];
+function escapeHtml(str) {
+ const div = document.createElement('div');
+ div.textContent = str;
+ return div.innerHTML;
+}
+function renderTasks() {
+ const list = document.getElementById('taskList');
+ list.innerHTML = '';
+ tasks.forEach((t, i) => {
+  const li = document.createElement('li');
+  li.className = 'taskItem';
+  li.innerHTML =
+   `<span>${escapeHtml(t.task)} ${escapeHtml(t.tags)}</span> ` +
+   `<button class="bombButton">爆破</button>`;
+  li.querySelector('button').addEventListener('click', () => {
+   li.classList.add('fade-out');
+   setTimeout(() => {
+    tasks.splice(i, 1);
+    renderTasks();
+   }, 800);
+   destroyedCount++;
+   document.getElementById('counterArea').textContent =
+    `今までに${destroyedCount}件のノルマを爆破しました`;
+   const msg = messages[Math.floor(Math.random() * messages.length)];
+   document.getElementById('messageArea').textContent = msg;
+   // GPT連携: ここにGPT APIを呼び出すコードを入れる
+  });
+  list.appendChild(li);
+ });
+}
+document.getElementById('addTaskBtn').addEventListener('click', () => {
+ const task = document.getElementById('taskInput').value.trim();
+ const tags = document.getElementById('tagInput').value.trim();
+ if (task) {
+  tasks.push({ task, tags });
+  renderTasks();
+  document.getElementById('taskInput').value = '';
+  document.getElementById('tagInput').value = '';
+ }
+});
+</script>
+</body>
+</html>
