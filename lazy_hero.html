@@ -15,9 +15,9 @@
  #text { flex:1; }
  #nextBtn { margin-left:10px; }
  #gameCanvas { flex:1 1 auto; background:#000; display:none; }
- #logBox {
-  background:#202020; padding:10px; height:120px; overflow-y:auto; font-size:14px; flex:0 0 auto;
- }
+#logBox {
+ background:#202020; padding:10px; height:120px; overflow-y:auto; font-size:14px; flex:0 0 auto;
+}
  canvas { width:100%; height:100%; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
@@ -36,6 +36,22 @@ const story = [
  {speaker:"魔王兵", text:"勇者よ、覚悟しろ！", eventTrigger:"battle"},
  {speaker:"勇者", text:"もう終わった？じゃあ寝るね…"}
 ];
+const states = ["転倒","精神混乱","撤退","冷静さを失う","存在の意味を見失う","自己言及エラー","衝撃吸収失敗"];
+const comments = [
+ "戦意喪失を確認",
+ "ぬくもりにより撤退",
+ "滑り倒し、起き上がらず",
+ "紙詰まりエラーに巻き込まれた可能性",
+ "内省モードへ移行",
+ "感情モジュールが誤作動",
+ "意思決定AIが暴走",
+ "再起動を試みるも失敗",
+ "エネルギー効率が許容範囲を下回る"
+];
+function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function generateLog(objName, enemyName){
+ return `対象：${enemyName}、${objName}により${rand(states)}。${rand(comments)}`;
+}
 let index = 0;
 let state = 'story';
 const speakerEl = document.getElementById('speaker');
@@ -70,6 +86,7 @@ function addLog(msg) {
  const div = document.createElement('div');
  div.textContent = msg;
  logBox.appendChild(div);
+ while(logBox.children.length > 10) logBox.removeChild(logBox.firstChild);
  logBox.scrollTop = logBox.scrollHeight;
 }
 
@@ -84,35 +101,46 @@ function startBattle() {
  render = Matter.Render.create({
   canvas: canvas,
   engine: engine,
-  options: {
-   width: width,
-   height: height,
-   background:'#111',
-   wireframes:false
-  }
+ options: {
+  width: width,
+  height: height,
+  background:'#111',
+  wireframes:false
+ }
+});
+Matter.Events.on(render, 'afterRender', function(){
+ const ctx = render.context;
+ ctx.fillStyle = '#fff';
+ ctx.font = '14px sans-serif';
+ [enemy, plush, orange].forEach(body => {
+  if(engine.world.bodies.includes(body))
+   ctx.fillText(body.name, body.position.x - 20, body.position.y - 25);
  });
- const ground = Matter.Bodies.rectangle(width/2, height-20, width, 40, {isStatic:true});
- enemy = Matter.Bodies.rectangle(width-60, height-60, 40, 60, {label:'enemy'});
- const plush = Matter.Bodies.circle(60, height-60, 20, {restitution:0.9, label:'plush'});
- const orange = Matter.Bodies.circle(140, height-60, 15, {restitution:0.4, label:'orange'});
- Matter.World.add(engine.world, [ground, enemy, plush, orange]);
+});
+const ground = Matter.Bodies.rectangle(width/2, height-20, width, 40, {isStatic:true});
+enemy = Matter.Bodies.rectangle(width-60, height-60, 40, 60, {label:'enemy'});
+enemy.name = '魔王兵';
+const plush = Matter.Bodies.circle(60, height-60, 20, {restitution:0.9, label:'plush'});
+plush.name = 'ぬいぐるみ';
+const orange = Matter.Bodies.circle(140, height-60, 15, {restitution:0.4, label:'orange'});
+orange.name = 'みかん';
+const battleBodies = [ground, enemy, plush, orange];
+Matter.World.add(engine.world, battleBodies);
  const mouse = Matter.Mouse.create(canvas);
  const mouseConstraint = Matter.MouseConstraint.create(engine, { mouse: mouse, constraint: { stiffness:0.2 } });
  Matter.World.add(engine.world, mouseConstraint);
  canvas.addEventListener('mouseup',()=>{ setTimeout(()=>{checkBattleEnd();},100); });
  Matter.Events.on(engine, 'collisionStart', function(event){
-  event.pairs.forEach(pair => {
-   const labels = [pair.bodyA.label, pair.bodyB.label];
-   if(labels.includes('enemy') && labels.includes('plush')) {
-    Matter.World.remove(engine.world, enemy);
-    addLog('対象：魔王兵、ぬいぐるみにより和んで帰った。');
+ event.pairs.forEach(pair => {
+   const pairBodies = [pair.bodyA, pair.bodyB];
+   let obj = pairBodies.find(b => b.label !== 'enemy');
+   let foe = pairBodies.find(b => b.label === 'enemy');
+   if(obj && foe) {
+    Matter.World.remove(engine.world, foe);
+    addLog(generateLog(obj.name, foe.name));
    }
-   if(labels.includes('enemy') && labels.includes('orange')) {
-    Matter.World.remove(engine.world, enemy);
-    addLog('対象：魔王兵、みかんにより戦意喪失。');
-   }
-  });
  });
+});
  Matter.Engine.run(engine);
  Matter.Render.run(render);
 }
