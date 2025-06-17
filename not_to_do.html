@@ -14,6 +14,11 @@ body{font-family:'Noto Sans', sans-serif; margin:0; padding:0; text-align:center
 .history{max-height:30vh; overflow-y:auto; background:#fafafa; border-top:1px solid #ccc; padding:5px; text-align:left; font-size:14px;}
 .history-entry{margin:2px 0;}
 #score{font-size:20px; margin-top:5px;}
+#level{font-size:18px; margin-top:5px;}
+#celebrate{position:fixed; top:0; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.8); font-size:32px; font-weight:bold; z-index:100;}
+#ending{position:fixed; top:0; left:0; right:0; bottom:0; background:#000; color:#fff; overflow:auto; display:none; z-index:200;}
+#ending div{padding:40px; animation:roll 10s linear forwards; white-space:pre-wrap;}
+@keyframes roll{from{transform:translateY(100%);}to{transform:translateY(-100%);}}
 #commentBox{display:flex; align-items:center; justify-content:center; margin:10px; font-size:18px;}
 #catText{margin-left:10px;}
 #comboText{margin-left:10px; color:orange; font-weight:bold;}
@@ -28,6 +33,7 @@ body{font-family:'Noto Sans', sans-serif; margin:0; padding:0; text-align:center
 <div id="board"></div>
 <div id="stack"></div>
 <div id="score">Score: <span id="scoreValue">0</span></div>
+<div id="level">Level: <span id="levelValue">1</span></div>
 <div id="commentBox">
   <svg id="catImg" width="60" height="60" viewBox="0 0 100 100">
     <circle cx="50" cy="60" r="30" fill="#fdd835" stroke="#555" stroke-width="3"/>
@@ -41,6 +47,8 @@ body{font-family:'Noto Sans', sans-serif; margin:0; padding:0; text-align:center
   <span id="comboText"></span>
 </div>
 <div class="history" id="history"></div>
+<div id="celebrate" style="display:none;">ステージクリア！</div>
+<div id="ending"><div>ご利用ありがとうございました\n制作者: 怠け猫AI</div></div>
 
 <script>
 const data = {
@@ -120,6 +128,11 @@ const stack = document.getElementById('stack');
 const scoreEl = document.getElementById('scoreValue');
 const comboEl = document.getElementById('comboText');
 const historyEl = document.getElementById('history');
+const levelEl = document.getElementById('levelValue');
+const celebrate = document.getElementById('celebrate');
+const ending = document.getElementById('ending');
+let level = 1;
+const finalLevel = 3;
 let history = [];
 let score = 0;
 let lastCategory = null;
@@ -135,25 +148,35 @@ function randomPosition(el){
   el.style.top = Math.random() * Math.max(bh - eh, 0) + 'px';
 }
 
+const colors=['#e91e63','#3f51b5','#4caf50','#ff9800','#9c27b0','#009688','#795548'];
+const fonts=["'Comic Sans MS',cursive","'Times New Roman',serif","'Arial Black',sans-serif","'Courier New',monospace","'Noto Sans',sans-serif"];
+
 function importanceStyle(importance){
-  if(importance >=3) return {color:'red', size:'20px'};
-  if(importance==2) return {color:'black', size:'16px'};
-  return {color:'gray', size:'12px'};
+  let size='12px';
+  if(importance>=3) size='20px';
+  else if(importance==2) size='16px';
+  return {size};
 }
 
 function showItems(){
   board.innerHTML='';
   const profile = profileSelect.value;
   const items = data[profile];
-  const count = Math.floor(Math.random()*6)+5;
+  const baseCount = Math.floor(Math.random()*6)+5;
+  const count = Math.min(items.length, baseCount + level - 1);
   const shuffled = items.slice().sort(()=>Math.random()-0.5).slice(0,count);
   shuffled.forEach(item=>{
     const div = document.createElement('div');
     div.className='item';
     div.textContent=item.text;
     const style = importanceStyle(item.importance);
-    div.style.color=style.color;
+    const extraColor = colors[Math.floor(Math.random()*colors.length)];
+    const font = fonts[Math.floor(Math.random()*fonts.length)];
+    div.style.color=extraColor;
     div.style.fontSize=style.size;
+    div.style.fontFamily=font;
+    div.style.fontStyle=Math.random()<0.5?'italic':'normal';
+    div.style.fontWeight=Math.random()<0.5?'bold':'normal';
     board.appendChild(div);
     div.addEventListener('click', ()=>{
       board.removeChild(div);
@@ -188,10 +211,14 @@ function showItems(){
       // stack block
       const block=document.createElement('div');
       block.className='block';
-      block.style.background=style.color;
+      block.style.background=extraColor;
       stack.appendChild(block);
 
       showComment();
+
+      if(board.querySelectorAll('.item').length===0){
+        stageClear();
+      }
     });
     randomPosition(div);
   });
@@ -214,6 +241,25 @@ function showComment(){
   ];
   document.getElementById('catText').textContent=
     comments[Math.floor(Math.random()*comments.length)];
+}
+
+function stageClear(){
+  celebrate.style.display='flex';
+  celebrate.textContent=`ステージ${level}クリア！`;
+  setTimeout(()=>{
+    celebrate.style.display='none';
+    level++;
+    if(level>finalLevel){
+      showEnding();
+    }else{
+      levelEl.textContent=level;
+      showItems();
+    }
+  },1500);
+}
+
+function showEnding(){
+  ending.style.display='block';
 }
 
 document.getElementById('refresh').addEventListener('click',showItems);
