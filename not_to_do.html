@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>やらなくていいことメモ帳（お試し版）</title>
+<style>
+body{font-family:'Noto Sans', sans-serif; margin:0; padding:0; text-align:center; background:#f2f2f2;}
+#control{margin:10px;}
+#board{position:relative; height:60vh; border:1px solid #ccc; margin:10px; overflow:hidden; background:#fff;}
+.item{position:absolute; cursor:pointer; padding:4px 8px; border-radius:4px;}
+.history{max-height:30vh; overflow-y:auto; background:#fafafa; border-top:1px solid #ccc; padding:5px; text-align:left; font-size:14px;}
+.history-entry{margin:2px 0;}
+</style>
+</head>
+<body>
+<div id="control">
+<select id="profile"></select>
+<button id="refresh">再表示</button>
+</div>
+<div id="board"></div>
+<div class="history" id="history"></div>
+
+<script>
+const data = {
+  '会社員（真面目）': [
+    {text:'メールを返す', importance:3, category:'仕事'},
+    {text:'資料を隅々まで読む', importance:2, category:'仕事'},
+    {text:'靴を揃える', importance:1, category:'マナー'},
+    {text:'意味もなく気を遣う', importance:1, category:'人間関係'},
+    {text:'定時後も残る', importance:2, category:'仕事'},
+    {text:'完璧に整理整頓する', importance:2, category:'整理'},
+    {text:'上司の顔色をうかがう', importance:3, category:'人間関係'},
+    {text:'無駄な会議を開く', importance:3, category:'仕事'},
+    {text:'社内チャットを常時監視', importance:2, category:'仕事'},
+    {text:'夜中に返信する', importance:1, category:'仕事'}
+  ],
+  'フリーランス（気まま）': [
+    {text:'SNSを延々チェック', importance:2, category:'時間浪費'},
+    {text:'全案件受ける', importance:3, category:'仕事'},
+    {text:'完璧なスケジュールを立てる', importance:1, category:'計画'},
+    {text:'請求書をデコる', importance:1, category:'その他'},
+    {text:'夜ふかし作業', importance:2, category:'健康'},
+    {text:'メールを秒で返す', importance:2, category:'仕事'},
+    {text:'毎日新サービスを試す', importance:1, category:'学習'},
+    {text:'タスクを色分けしすぎる', importance:1, category:'整理'},
+    {text:'即レス強迫観念', importance:3, category:'仕事'},
+    {text:'自己啓発本を積む', importance:1, category:'学習'}
+  ],
+  '主婦（がんばり屋）': [
+    {text:'毎日完璧に掃除', importance:3, category:'家事'},
+    {text:'栄養完璧なごはん作り', importance:2, category:'家事'},
+    {text:'家計簿を細かくつける', importance:2, category:'家計'},
+    {text:'近所付き合い全部参加', importance:3, category:'人間関係'},
+    {text:'子どもに過剰に気を配る', importance:2, category:'家族'},
+    {text:'SNSで理想育児検索', importance:1, category:'時間浪費'},
+    {text:'完璧な収納術にこだわる', importance:1, category:'整理'},
+    {text:'寝る前に明日の準備を全部', importance:2, category:'家事'},
+    {text:'趣味の時間を後回し', importance:3, category:'自分'},
+    {text:'献立を１週間分考える', importance:1, category:'家事'}
+  ],
+  '学生（SNS依存）': [
+    {text:'友達の投稿を全部見る', importance:2, category:'SNS'},
+    {text:'課題をギリギリまで放置', importance:3, category:'勉強'},
+    {text:'ゲーム実況を徹夜で視聴', importance:2, category:'娯楽'},
+    {text:'教科書を隅から隅まで写す', importance:1, category:'勉強'},
+    {text:'返信が来るまでスマホ凝視', importance:2, category:'SNS'},
+    {text:'どうでもいいグルチャ参加', importance:1, category:'SNS'},
+    {text:'単位計算を毎日確認', importance:1, category:'勉強'},
+    {text:'先生の顔色をうかがう', importance:3, category:'人間関係'},
+    {text:'朝までチャット', importance:2, category:'SNS'},
+    {text:'趣味の動画を無限再生', importance:2, category:'娯楽'}
+  ],
+  '猫（完全自由）': [
+    {text:'毛づくろいを完璧にする', importance:2, category:'生活'},
+    {text:'人間に媚びる', importance:3, category:'行動'},
+    {text:'高いところから世界征服を妄想', importance:1, category:'妄想'},
+    {text:'毎回おやつを要求', importance:2, category:'食事'},
+    {text:'飼い主の後をずっとついて回る', importance:1, category:'行動'},
+    {text:'ネズミのおもちゃを常に狩る', importance:1, category:'遊び'},
+    {text:'昼寝を我慢', importance:3, category:'健康'},
+    {text:'朝5時に起こす', importance:2, category:'行動'},
+    {text:'家じゅう走り回る', importance:2, category:'遊び'},
+    {text:'ダンボール箱を全部試す', importance:1, category:'遊び'}
+  ]
+};
+
+const profileSelect = document.getElementById('profile');
+for(const key in data){
+  const opt = document.createElement('option');
+  opt.value = key;
+  opt.textContent = key;
+  profileSelect.appendChild(opt);
+}
+profileSelect.selectedIndex = 0;
+
+const board = document.getElementById('board');
+const historyEl = document.getElementById('history');
+let history = [];
+
+function randomPosition(el){
+  const bw = board.clientWidth;
+  const bh = board.clientHeight;
+  const ew = el.offsetWidth;
+  const eh = el.offsetHeight;
+  el.style.left = Math.random() * Math.max(bw - ew, 0) + 'px';
+  el.style.top = Math.random() * Math.max(bh - eh, 0) + 'px';
+}
+
+function importanceStyle(importance){
+  if(importance >=3) return {color:'red', size:'20px'};
+  if(importance==2) return {color:'black', size:'16px'};
+  return {color:'gray', size:'12px'};
+}
+
+function showItems(){
+  board.innerHTML='';
+  const profile = profileSelect.value;
+  const items = data[profile];
+  const count = Math.floor(Math.random()*6)+5;
+  const shuffled = items.slice().sort(()=>Math.random()-0.5).slice(0,count);
+  shuffled.forEach(item=>{
+    const div = document.createElement('div');
+    div.className='item';
+    div.textContent=item.text;
+    const style = importanceStyle(item.importance);
+    div.style.color=style.color;
+    div.style.fontSize=style.size;
+    board.appendChild(div);
+    div.addEventListener('click', ()=>{
+      board.removeChild(div);
+      const now = new Date();
+      history.push({text:item.text,time:now,profile:profile,category:item.category});
+      addHistory(item.text, now, profile, item.category);
+      showComment();
+    });
+    randomPosition(div);
+  });
+}
+
+function addHistory(text,time,profile,category){
+  const div=document.createElement('div');
+  div.className='history-entry';
+  div.textContent=`[${time.toLocaleString()}] (${profile}/${category}) ${text}`;
+  historyEl.prepend(div);
+}
+
+function showComment(){
+  const comments=[
+    'それ、今やる意味ある？',
+    '世界はまだ回ってるよ',
+    'まぁ、今日は休もう',
+    '気にしない気にしない',
+    'それよりお昼寝しよう'
+  ];
+  alert(comments[Math.floor(Math.random()*comments.length)]);
+}
+
+document.getElementById('refresh').addEventListener('click',showItems);
+profileSelect.addEventListener('change',showItems);
+
+window.addEventListener('load',showItems);
+</script>
+</body>
+</html>
