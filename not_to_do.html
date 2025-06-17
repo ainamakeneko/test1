@@ -6,12 +6,18 @@
 <style>
 body{font-family:'Noto Sans', sans-serif; margin:0; padding:0; text-align:center; background:#f2f2f2;}
 #control{margin:10px;}
-#board{position:relative; height:60vh; border:1px solid #ccc; margin:10px; overflow:hidden; background:#fff;}
+#board{position:relative; height:60vh; width:60%; border:1px solid #ccc; margin:10px; overflow:hidden; background:#fff; display:inline-block;}
+#stack{position:relative; height:60vh; width:35%; border:1px solid #ccc; margin-top:10px; background:#e8e8e8; display:inline-flex; flex-wrap:wrap; align-content:flex-end; justify-content:flex-start;}
+.block{width:20px; height:20px; margin:1px; background:#888;}
 .item{position:absolute; cursor:pointer; padding:4px 8px; border-radius:4px; transition:left 1s linear, top 1s linear;}
+.explode{position:absolute; pointer-events:none; animation:boom 0.5s forwards; font-size:24px;}
 .history{max-height:30vh; overflow-y:auto; background:#fafafa; border-top:1px solid #ccc; padding:5px; text-align:left; font-size:14px;}
 .history-entry{margin:2px 0;}
+#score{font-size:20px; margin-top:5px;}
 #commentBox{display:flex; align-items:center; justify-content:center; margin:10px; font-size:18px;}
 #catText{margin-left:10px;}
+#comboText{margin-left:10px; color:orange; font-weight:bold;}
+@keyframes boom{0%{opacity:1; transform:scale(0);}100%{opacity:0; transform:scale(2);}}
 </style>
 </head>
 <body>
@@ -20,6 +26,8 @@ body{font-family:'Noto Sans', sans-serif; margin:0; padding:0; text-align:center
 <button id="refresh">再表示</button>
 </div>
 <div id="board"></div>
+<div id="stack"></div>
+<div id="score">Score: <span id="scoreValue">0</span></div>
 <div id="commentBox">
   <svg id="catImg" width="60" height="60" viewBox="0 0 100 100">
     <circle cx="50" cy="60" r="30" fill="#fdd835" stroke="#555" stroke-width="3"/>
@@ -30,6 +38,7 @@ body{font-family:'Noto Sans', sans-serif; margin:0; padding:0; text-align:center
     <polygon points="45,65 50,70 55,65" fill="#555"/>
   </svg>
   <span id="catText"></span>
+  <span id="comboText"></span>
 </div>
 <div class="history" id="history"></div>
 
@@ -107,8 +116,15 @@ for(const key in data){
 profileSelect.selectedIndex = 0;
 
 const board = document.getElementById('board');
+const stack = document.getElementById('stack');
+const scoreEl = document.getElementById('scoreValue');
+const comboEl = document.getElementById('comboText');
 const historyEl = document.getElementById('history');
 let history = [];
+let score = 0;
+let lastCategory = null;
+let comboCount = 0;
+let comboTimer = null;
 
 function randomPosition(el){
   const bw = board.clientWidth;
@@ -144,6 +160,37 @@ function showItems(){
       const now = new Date();
       history.push({text:item.text,time:now,profile:profile,category:item.category});
       addHistory(item.text, now, profile, item.category);
+
+      // explosion effect
+      const boom=document.createElement('span');
+      boom.textContent='💥';
+      boom.className='explode';
+      boom.style.left=div.style.left;
+      boom.style.top=div.style.top;
+      board.appendChild(boom);
+      setTimeout(()=>board.removeChild(boom),500);
+
+      // scoring
+      score += item.importance * 10;
+      scoreEl.textContent = score;
+
+      // combo check
+      if(lastCategory === item.category){
+        comboCount += 1;
+      } else {
+        comboCount = 1;
+        lastCategory = item.category;
+      }
+      clearTimeout(comboTimer);
+      comboEl.textContent = comboCount > 1 ? `COMBO x${comboCount}!` : '';
+      comboTimer = setTimeout(()=>{comboEl.textContent=''; comboCount=0; lastCategory=null;},1500);
+
+      // stack block
+      const block=document.createElement('div');
+      block.className='block';
+      block.style.background=style.color;
+      stack.appendChild(block);
+
       showComment();
     });
     randomPosition(div);
@@ -174,7 +221,13 @@ profileSelect.addEventListener('change',showItems);
 
 window.addEventListener('load',showItems);
 setInterval(()=>{
-  document.querySelectorAll('.item').forEach(el=>randomPosition(el));
+  const items = Array.from(document.querySelectorAll('.item'));
+  const moveCount = Math.min(items.length, Math.floor(Math.random()*3)+1);
+  for(let i=0;i<moveCount;i++){
+    const idx = Math.floor(Math.random()*items.length);
+    const el = items.splice(idx,1)[0];
+    if(el) randomPosition(el);
+  }
 },3000);
 </script>
 </body>
