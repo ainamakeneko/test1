@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>濡れ猫と探偵 - Episode 1</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: sans-serif;
+    }
+    #container {
+      max-width: 600px;
+      min-width: 360px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    #startScreen,
+    #gameScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    #startScreen {
+      cursor: pointer;
+    }
+    #background {
+      width: 100%;
+      height: 200px;
+      background-size: cover;
+      margin-bottom: 10px;
+    }
+    #character {
+      width: 100%;
+      height: 200px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center bottom;
+      margin-bottom: 10px;
+    }
+    #textBox {
+      width: 100%;
+      border: 1px solid #888;
+      padding: 10px;
+      cursor: pointer;
+      min-height: 60px;
+    }
+    #speaker {
+      font-weight: bold;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="startScreen">
+      <h1>濡れ猫と探偵</h1>
+      <p>クリックで開始</p>
+    </div>
+    <div id="gameScreen" style="display:none;">
+      <div id="background"></div>
+      <div id="character"></div>
+      <div id="textBox">
+        <span id="speaker"></span>
+        <span id="message"></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // YAML script data for Episode 1
+  const scriptYaml = `scene1:
+  bg: bg_rainy_city.jpg
+  lines:
+    - speaker: Narration
+      text: "灰色の空。雨粒がアスファルトを叩く。"
+    - speaker: Narration
+      text: "繁華街の片隅、人気のない路地裏で足を止めた。"
+    - speaker: 名取 彰
+      text: "……猫、か？"
+    - speaker: Narration
+      text: "段ボールの中に、びしょ濡れの子猫がうずくまっている。"
+    - speaker: 名取 彰
+      text: "俺と同じだな。誰にも拾われず、濡れて、うずくまって。"
+    - speaker: Narration
+      text: "その瞬間、小さな決意が胸の奥で鳴った。"
+    - speaker: 名取 彰
+      text: "行くぞ。俺が、名前をつけてやる。"
+    - speaker: Narration
+      text: "名取 彰と、小さな命との出会いは、静かに幕を開けた――。"`;
+
+  // Very small YAML parser for the above structure
+  function parseScript(yaml) {
+    const lines = yaml.split(/\n/);
+    const script = {};
+    let currentScene = null;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (/^\s*\w+:\s*$/.test(line)) {
+        currentScene = line.trim().replace(':', '');
+        script[currentScene] = { bg: '', lines: [] };
+      } else if (/^\s*bg:\s*/.test(line)) {
+        script[currentScene].bg = line.split('bg:')[1].trim();
+      } else if (/^\s*-\s*speaker:/.test(line)) {
+        const speaker = line.split('speaker:')[1].trim();
+        const textLine = lines[++i] || '';
+        const text = textLine.split('text:')[1].trim();
+        script[currentScene].lines.push({ speaker, text: text.replace(/^"|"$/g, '') });
+      }
+    }
+    return script;
+  }
+
+  const script = parseScript(scriptYaml);
+  const scene = script.scene1;
+  let lineIndex = 0;
+  const charImages = {
+    '名取 彰': 'char_natori.png',
+    'Narration': ''
+  };
+
+  function startGame() {
+    document.getElementById('startScreen').style.display = 'none';
+    document.getElementById('gameScreen').style.display = 'flex';
+    document.getElementById('background').style.backgroundImage = 'url(' + scene.bg + ')';
+    document.getElementById('character').style.backgroundImage = 'none';
+    showLine();
+  }
+
+  function showLine() {
+    if (lineIndex < scene.lines.length) {
+      const line = scene.lines[lineIndex];
+      document.getElementById('speaker').textContent = line.speaker;
+      document.getElementById('message').textContent = line.text;
+      const char = charImages[line.speaker] || '';
+      if (char) {
+        document.getElementById('character').style.backgroundImage = 'url(' + char + ')';
+      } else {
+        document.getElementById('character').style.backgroundImage = 'none';
+      }
+    } else {
+      document.getElementById('speaker').textContent = '';
+      document.getElementById('message').textContent = '--- 完 ---';
+    }
+  }
+
+  document.getElementById('startScreen').addEventListener('click', startGame);
+  document.getElementById('textBox').addEventListener('click', () => {
+    if (lineIndex < scene.lines.length) {
+      lineIndex++;
+      showLine();
+    }
+  });
+  </script>
+</body>
+</html>
+
