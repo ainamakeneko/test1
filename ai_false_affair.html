@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>浮気はAIの誤検知? - Episode 1</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: sans-serif;
+    }
+    #container {
+      max-width: 600px;
+      min-width: 360px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    #startScreen,
+    #gameScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    #startScreen {
+      cursor: pointer;
+    }
+    #background {
+      width: 100%;
+      height: 200px;
+      background-size: cover;
+      margin-bottom: 10px;
+    }
+    #textBox {
+      width: 100%;
+      border: 1px solid #888;
+      padding: 10px;
+      cursor: pointer;
+      min-height: 60px;
+    }
+    #speaker {
+      font-weight: bold;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="startScreen">
+      <h1>浮気はAIの誤検知?</h1>
+      <p>クリックで開始</p>
+    </div>
+    <div id="gameScreen" style="display:none;">
+      <div id="background"></div>
+      <div id="textBox">
+        <span id="speaker"></span>
+        <span id="message"></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const scriptYaml = `scene1:
+  bg: bg_rainy_city.jpg
+  lines:
+    - speaker: Narration
+      text: "霧雨の街。傘をさすほどでもない、でも、濡れるには十分な夜だった。"
+    - speaker: Narration
+      text: "俺の名は名取 梓馬。探偵をやってる。少し前まで、あんたらの“未来”の中にいた。"
+    - speaker: Narration
+      text: "でも今は、証言と感情だけを頼りに、真実を拾ってる。"
+
+scene2:
+  bg: bg_client_room.jpg
+  lines:
+    - speaker: 依頼人
+      text: "夫が……浮気してるんです。"
+    - speaker: 名取 梓馬
+      text: "理由は？"
+    - speaker: 依頼人
+      text: "この“感情分析レポート”を見てください。AIが夫の脈拍と声のトーンから『恋愛感情の高まり』って……"
+    - speaker: 名取 梓馬
+      text: "あんたんとこのAI、家計簿まで見てるくせに、情けってやつは見逃すんだな。"
+    - speaker: 依頼人
+      text: "音声ログも……あります。でも、この女の声、声紋認証で“未登録者”って……"
+
+scene3:
+  bg: bg_natori_office.jpg
+  lines:
+    - speaker: 名取 梓馬
+      text: "旧型の“手動型会話復元機”を持ち出すのは久しぶりだな。"
+    - speaker: Narration
+      text: "波形が妙に滑らかすぎる。これは、合成音声特有の歪みだ。"
+    - speaker: 名取 梓馬
+      text: "なるほど。旦那の声と“生成AI”の女声を、混ぜたな……"
+    - speaker: Narration
+      text: "犯人は、企業向けスパイツールの実験に使っていた。旦那の勤務先が“協力”していたのだ。"
+
+scene4:
+  bg: bg_bar_eden.jpg
+  lines:
+    - speaker: Narration
+      text: "Bar『エデン』。俺が唯一、機械が入ってこない場所。"
+    - speaker: 名取 梓馬
+      text: "“証拠”ってのは、機械が出したからって、真実ってわけじゃねえ。"
+    - speaker: 名取 梓馬
+      text: "信じるやつがいれば、それは嘘だって殺し文句になる。"
+    - speaker: バーマスター 栞
+      text: "じゃあ、信じる人がいない真実ってのは、なんなんでしょうね。"`;
+
+  function parseScript(yaml) {
+    const lines = yaml.split(/\n/);
+    const scenes = [];
+    let current = null;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (/^scene\d+:$/.test(line)) {
+        if (current) scenes.push(current);
+        current = { bg: '', lines: [] };
+      } else if (line.startsWith('bg:')) {
+        if (current) current.bg = line.substring(3).trim();
+      } else if (line.startsWith('- speaker:')) {
+        const speaker = line.substring(10).trim();
+        const textLine = lines[++i].trim();
+        const text = textLine.split('text:')[1].trim();
+        current.lines.push({ speaker, text: text.replace(/^"|"$/g, '') });
+      }
+    }
+    if (current) scenes.push(current);
+    return scenes;
+  }
+
+  const scenes = parseScript(scriptYaml);
+  let sceneIndex = 0;
+  let lineIndex = 0;
+
+  function setScene(idx) {
+    const sc = scenes[idx];
+    document.getElementById('background').style.backgroundImage = 'url(' + sc.bg + ')';
+    lineIndex = 0;
+  }
+
+  function startGame() {
+    document.getElementById('startScreen').style.display = 'none';
+    document.getElementById('gameScreen').style.display = 'flex';
+    setScene(sceneIndex);
+    showLine();
+  }
+
+  function showLine() {
+    const scene = scenes[sceneIndex];
+    if (lineIndex < scene.lines.length) {
+      const line = scene.lines[lineIndex];
+      document.getElementById('speaker').textContent = line.speaker;
+      document.getElementById('message').textContent = line.text;
+    } else if (sceneIndex < scenes.length - 1) {
+      sceneIndex++;
+      setScene(sceneIndex);
+      showLine();
+    } else {
+      document.getElementById('speaker').textContent = '';
+      document.getElementById('message').textContent = '--- 完 ---';
+    }
+  }
+
+  document.getElementById('startScreen').addEventListener('click', startGame);
+  document.getElementById('textBox').addEventListener('click', () => {
+    const scene = scenes[sceneIndex];
+    if (lineIndex < scene.lines.length) {
+      lineIndex++;
+      showLine();
+    } else if (sceneIndex < scenes.length - 1) {
+      sceneIndex++;
+      setScene(sceneIndex);
+      showLine();
+    }
+  });
+  </script>
+</body>
+</html>
