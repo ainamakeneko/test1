@@ -39,18 +39,31 @@
     #character {
       position: absolute;
       bottom: 0;
-      right: 0;
-      width: 150px;
-      height: 300px;
+      left: 50%;
+      width: 200px;
+      height: 350px;
+      transform: translateX(-50%);
       background-size: contain;
       background-repeat: no-repeat;
     }
     #textBox {
+      position: relative;
       width: 100%;
       border: 1px solid #888;
       padding: 10px;
+      padding-right: 200px;
       cursor: pointer;
-      min-height: 60px;
+      min-height: 80px;
+    }
+    #natoriPortrait {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      width: 180px;
+      height: 330px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      pointer-events: none;
     }
     #speaker {
       font-weight: bold;
@@ -71,6 +84,7 @@
       <div id="textBox">
         <span id="speaker"></span>
         <span id="message"></span>
+        <div id="natoriPortrait"></div>
       </div>
     </div>
   </div>
@@ -161,6 +175,7 @@ scene4:
   const scenes = parseScript(scriptYaml);
   let sceneIndex = 0;
   let lineIndex = 0;
+  let clientLocked = false;
 
   const charImages = {
     '名取 梓馬': 'char_natori.png',
@@ -172,13 +187,19 @@ scene4:
   function setScene(idx) {
     const sc = scenes[idx];
     document.getElementById('background').style.backgroundImage = 'url(' + sc.bg + ')';
-    document.getElementById('character').style.backgroundImage = 'none';
+    clientLocked = sc.lines.some(l => l.speaker === '依頼人');
+    if (clientLocked) {
+      document.getElementById('character').style.backgroundImage = 'url(' + charImages['依頼人'] + ')';
+    } else {
+      document.getElementById('character').style.backgroundImage = 'none';
+    }
     lineIndex = 0;
   }
 
   function startGame() {
     document.getElementById('startScreen').style.display = 'none';
     document.getElementById('gameScreen').style.display = 'flex';
+    document.getElementById('natoriPortrait').style.backgroundImage = 'url(' + charImages['名取 梓馬'] + ')';
     setScene(sceneIndex);
     showLine();
   }
@@ -189,11 +210,13 @@ scene4:
       const line = scene.lines[lineIndex];
       document.getElementById('speaker').textContent = line.speaker;
       document.getElementById('message').textContent = line.text;
-      const char = charImages[line.speaker] || '';
-      if (char) {
-        document.getElementById('character').style.backgroundImage = 'url(' + char + ')';
-      } else {
-        document.getElementById('character').style.backgroundImage = 'none';
+      if (!clientLocked) {
+        const char = line.speaker === '名取 梓馬' ? '' : (charImages[line.speaker] || '');
+        if (char) {
+          document.getElementById('character').style.backgroundImage = 'url(' + char + ')';
+        } else {
+          document.getElementById('character').style.backgroundImage = 'none';
+        }
       }
     } else if (sceneIndex < scenes.length - 1) {
       sceneIndex++;
