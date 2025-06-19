@@ -34,7 +34,6 @@
       background-size: cover;
       background-position: center;
       position: relative;
-      margin-bottom: 10px;
     }
     #character {
       position: absolute;
@@ -45,15 +44,20 @@
       transform: translate(-50%, 0);
       background-size: contain;
       background-repeat: no-repeat;
+      z-index: 1;
     }
     #textBox {
-      position: relative;
+      position: absolute;
+      bottom: 0;
+      left: 0;
       width: 100%;
       border: 1px solid #888;
       padding: 10px;
       padding-right: 200px;
       cursor: pointer;
       min-height: 80px;
+      background: rgba(0,0,0,0.6);
+      z-index: 2;
     }
     #natoriPortrait {
       position: absolute;
@@ -64,6 +68,7 @@
       background-size: contain;
       background-repeat: no-repeat;
       pointer-events: none;
+      z-index: 1;
     }
     #speaker {
       font-weight: bold;

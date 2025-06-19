@@ -34,7 +34,6 @@
       background-size: cover;
       background-position: center;
       position: relative;
-      margin-bottom: 10px;
     }
     #character {
       position: absolute;
@@ -45,13 +44,19 @@
       transform: translateY(0);
       background-size: contain;
       background-repeat: no-repeat;
+      z-index: 1;
     }
     #textBox {
+      position: absolute;
+      bottom: 0;
+      left: 0;
       width: 100%;
       border: 1px solid #888;
       padding: 10px;
       cursor: pointer;
       min-height: 60px;
+      background: rgba(0,0,0,0.6);
+      z-index: 2;
     }
     #speaker {
       font-weight: bold;
