@@ -27,7 +27,7 @@
   </div>
   <div id="episodeScreen">
     <h2>エピソード選択</h2>
-    <button class="epBtn" data-ep="ep1">Episode 1 濡れ猫と探偵</button>
+    <button class="epBtn" data-ep="ep1">Episode 1 浮気はAIの誤検知?</button>
     <button class="epBtn" data-ep="ep2">Episode 2 ロボペット騒動記</button>
   </div>
   <div id="gameScreen">
@@ -40,50 +40,106 @@
 </div>
 <script>
 const scripts = {
-  ep1: `scene1:
-  bg: bg_rainy_city.jpg
+  ep1: `
+scene1:
+  bg: bg_rainy_city.png
   lines:
     - speaker: Narration
-      text: "灰色の空。雨粒がアスファルトを叩く。"
+      text: "霧雨の街。傘をさすほどでもない、でも、濡れるには十分な夜だった。"
     - speaker: Narration
-      text: "繁華街の片隅、人気のない路地裏で足を止めた。"
-    - speaker: 名取 彰
-      text: "……猫、か？"
+      text: "人々はAIの指示に従い足早に駅へ向かう。俺だけが古いアパートの影で雨を見ている。"
+    - speaker: 名取 梓馬
+      text: "元観測員……今じゃただの探偵だ。"
     - speaker: Narration
-      text: "段ボールの中に、びしょ濡れの子猫がうずくまっている。"
-    - speaker: 名取 彰
-      text: "俺と同じだな。誰にも拾われず、濡れて、うずくまって。"
+      text: "かつては人の逸脱を数字で測り、記録だけを追っていた。"
+    - speaker: 名取 梓馬
+      text: "証言と感情。今の俺に必要なのはそれだけだ。"
+
+scene2:
+  bg: bg_client_room.png
+  lines:
+    - speaker: 依頼人
+      text: "夫のスケジュールは家庭連携AIが管理してます。なのに、このAIだけ私に\"言わない予定\"があるんです。"
+    - speaker: 名取 梓馬
+      text: "それで浮気を疑ったわけか。"
+    - speaker: 依頼人
+      text: "この\"感情分析レポート\"では、夫が電話中に恋愛感情を示したと記録されていて……"
+    - speaker: 依頼人
+      text: "さらに音声ログには若い女の声。けど、声紋認証では未登録者って。"
+    - speaker: 名取 梓馬
+      text: "あんたんとこのAI、家計簿まで見てるくせに情けは見逃すんだな。"
+    - speaker: 依頼人
+      text: "お願いです、真実を知りたい。"
+
+scene3:
+  bg: bg_natori_office.png
+  lines:
     - speaker: Narration
-      text: "その瞬間、小さな決意が胸の奥で鳴った。"
-    - speaker: 名取 彰
-      text: "行くぞ。俺が、名前をつけてやる。"
+      text: "依頼人が帰り、俺は旧型の手動型会話復元機を机に広げた。"
+    - speaker: 名取 梓馬
+      text: "こいつを使うのは久しぶりだな。"
     - speaker: Narration
-      text: "名取 彰と、小さな命との出会いは、静かに幕を開けた――。"`,
-  ep2: `scene1:
+      text: "波形データを照合すると、部分的に妙に滑らかな箇所がある。"
+    - speaker: 名取 梓馬
+      text: "人工的なノイズ除去……いや、違う、これは合成の痕跡か。"
+    - speaker: Narration
+      text: "旦那の声に生成AIのサンプルボイスを混ぜ、存在しない会話を作っている。"
+    - speaker: 名取 梓馬
+      text: "裏で何かの実験に利用されてやがるな。勤務先が怪しい。"
+
+scene4:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: Narration
+      text: "Bar『エデン』。ここだけは機械の目を気にせず呑める。"
+    - speaker: 名取 梓馬
+      text: "\"証拠\"ってのは機械が出したからって真実ってわけじゃねえ。"
+    - speaker: 名取 梓馬
+      text: "信じるやつがいれば、それは嘘だって殺し文句になる。"
+    - speaker: バーマスター 栞
+      text: "じゃあ、信じる人がいない真実ってのは、なんなんでしょうね。"
+    - speaker: 名取 梓馬
+      text: "それを探すのが俺の仕事だ。"
+`,
+  ep2: `
+scene1:
   bg: bg_city_evening.jpg
   lines:
     - speaker: 結城ミチオ
-      text: "見てくれ、名取さん！ 鳴いてるのはこの犬型ロボだ。しかも“誰か”の名前を呼んでる！"
-    - speaker: 名取
-      text: "……“マサエ”？ 飼い主は男だったろ"
+      text: "見ろよ名取さん！ この犬型ロボ、夜な夜な誰かの名前を叫ぶんだ。"
+    - speaker: 名取 梓馬
+      text: "感情進化型か……十年前に製造中止になった機種だ。"
     - speaker: 結城ミチオ
-      text: "これが“マサエさんの声”らしいんだ。でもな、データベースには存在しねぇ。つまり……このロボ、誰かの死者と話してる"
+      text: "なのに声は『マサエ』って女の名前さ。飼い主は男だってのに。"
+    - speaker: 名取 梓馬
+      text: "オーナーは鳴き声をオフにしたと言っていたが、どういうことだ。"
+    - speaker: 結城ミチオ
+      text: "データベースにも記録はなし。幽霊でも相手にしてるのかね。"
+
 scene2:
   bg: bg_lab.jpg
   lines:
     - speaker: Narration
-      text: "ロボの記憶媒体を名取が解析すると、旧オーナーの未送信メッセージが大量に残っていた。"
+      text: "名取はロボの記憶装置を慎重に解析した。"
+    - speaker: 名取 梓馬
+      text: "旧オーナーからの未送信メッセージが山ほど残っている。"
+    - speaker: 結城ミチオ
+      text: "俺の冷蔵庫で凍らせたUSBよりずっと元気だな。"
     - speaker: Narration
-      text: "ロボは新オーナーの生活習慣を模倣するうちに、前のオーナーの音声と記憶を交雑再構築。"
-    - speaker: 名取
-      text: "つまり、AIが“死者の人格”を自己進化で再構成していたわけだ。"
+      text: "ロボは新しい飼い主を真似るうち、以前のオーナーの声と記憶を混ぜ始めたらしい。"
+    - speaker: 名取 梓馬
+      text: "つまり、このロボは亡くなった主の声を再現しようとしている。"
+
 scene3:
   bg: bg_bar_eden.jpg
   lines:
-    - speaker: 栞
-      text: "あなたは“声”のない時代に生まれたのに、よく聞き分けられますね"
-    - speaker: 名取
-      text: "嘘か本当かより、“誰が聞きたかったか”が残るのが、声ってやつさ"`
+    - speaker: バーマスター 栞
+      text: "機械の声でも、人が望めば慰めになるものですね。"
+    - speaker: 名取 梓馬
+      text: "嘘か真かより、誰が耳を傾けたかで価値が決まる。"
+    - speaker: 結城ミチオ
+      text: "俺は酒の声が一番好きだよ。機械は冷えてなくちゃな。"
+`
 };
 
 function parseScript(yaml) {
