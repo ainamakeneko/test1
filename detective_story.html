@@ -6,12 +6,14 @@
   <style>
     body { margin:0; background:#000; color:#fff; font-family:sans-serif; }
     #container { max-width:600px; min-width:360px; margin:0 auto; padding:20px; }
-    #startScreen, #nameScreen, #episodeScreen, #gameScreen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; }
+    #startScreen, #episodeScreen, #gameScreen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; }
     #startScreen { cursor:pointer; }
-    #nameScreen, #episodeScreen, #gameScreen { display:none; }
-    #textBox { position:absolute; bottom:0; left:0; width:100%; background:rgba(0,0,0,0.6); padding:10px; cursor:pointer; }
-    #speaker { font-weight:bold; display:block; }
+    #episodeScreen, #gameScreen { display:none; }
     #background { width:100%; height:300px; background-size:cover; background-position:center; position:relative; }
+    #character { position:absolute; top:50%; left:50%; width:200px; height:350px; transform:translate(-50%,0); background-size:contain; background-repeat:no-repeat; z-index:1; }
+    #natoriPortrait { position:absolute; top:50%; right:10px; width:180px; height:330px; background-size:contain; background-repeat:no-repeat; pointer-events:none; z-index:1; }
+    #textBox { position:absolute; bottom:0; left:0; width:100%; border:1px solid #888; padding:10px; padding-right:200px; cursor:pointer; min-height:80px; background:rgba(0,0,0,0.6); z-index:2; }
+    #speaker { font-weight:bold; display:block; }
   </style>
 </head>
 <body>
@@ -20,18 +22,16 @@
     <h1>鋼鉄都市：灰色の記憶たち</h1>
     <p>クリックで開始</p>
   </div>
-  <div id="nameScreen">
-    <p>名前を入力してください</p>
-    <input id="playerName" type="text" />
-    <button id="nameOk">OK</button>
-  </div>
   <div id="episodeScreen">
     <h2>エピソード選択</h2>
     <button class="epBtn" data-ep="ep1">Episode 1 浮気はAIの誤検知?</button>
     <button class="epBtn" data-ep="ep2">Episode 2 ロボペット騒動記</button>
   </div>
   <div id="gameScreen">
-    <div id="background"></div>
+    <div id="background">
+      <div id="character"></div>
+      <div id="natoriPortrait"></div>
+    </div>
     <div id="textBox">
       <span id="speaker"></span>
       <span id="message"></span>
@@ -103,7 +103,7 @@ scene4:
 `,
   ep2: `
 scene1:
-  bg: bg_city_evening.jpg
+  bg: bg_city_evening.png
   lines:
     - speaker: 結城ミチオ
       text: "見ろよ名取さん！ この犬型ロボ、夜な夜な誰かの名前を叫ぶんだ。"
@@ -117,7 +117,7 @@ scene1:
       text: "データベースにも記録はなし。幽霊でも相手にしてるのかね。"
 
 scene2:
-  bg: bg_lab.jpg
+  bg: bg_lab.png
   lines:
     - speaker: Narration
       text: "名取はロボの記憶装置を慎重に解析した。"
@@ -131,7 +131,7 @@ scene2:
       text: "つまり、このロボは亡くなった主の声を再現しようとしている。"
 
 scene3:
-  bg: bg_bar_eden.jpg
+  bg: bg_bar_eden.png
   lines:
     - speaker: バーマスター 栞
       text: "機械の声でも、人が望めば慰めになるものですね。"
@@ -167,14 +167,31 @@ function parseScript(yaml) {
 let currentScenes = [];
 let sceneIndex = 0;
 let lineIndex = 0;
+let clientLocked = false;
+let finished = false;
+
+const charImages = {
+  '名取 梓馬': 'char_natori.png',
+  '依頼人': 'char_client.png',
+  'バーマスター 栞': 'char_shiori.png',
+  '結城ミチオ': 'char_yuuki.png',
+  'Narration': ''
+};
+
+function setScene(idx) {
+  const sc = currentScenes[idx];
+  document.getElementById('background').style.backgroundImage = 'url(' + sc.bg + ')';
+  clientLocked = sc.lines.some(l => l.speaker === '依頼人');
+  if (clientLocked) {
+    document.getElementById('character').style.backgroundImage = 'url(' + charImages['依頼人'] + ')';
+  } else {
+    document.getElementById('character').style.backgroundImage = 'none';
+  }
+  lineIndex = 0;
+}
 
 function startGame() {
   document.getElementById('startScreen').style.display = 'none';
-  document.getElementById('nameScreen').style.display = 'flex';
-}
-
-function setName() {
-  document.getElementById('nameScreen').style.display = 'none';
   document.getElementById('episodeScreen').style.display = 'flex';
 }
 
@@ -182,9 +199,11 @@ function chooseEpisode(ep) {
   currentScenes = parseScript(scripts[ep]);
   sceneIndex = 0;
   lineIndex = 0;
+  finished = false;
   document.getElementById('episodeScreen').style.display = 'none';
   document.getElementById('gameScreen').style.display = 'flex';
-  document.getElementById('background').style.backgroundImage = 'url(' + currentScenes[0].bg + ')';
+  document.getElementById('natoriPortrait').style.backgroundImage = 'url(' + charImages['名取 梓馬'] + ')';
+  setScene(sceneIndex);
   showLine();
 }
 
@@ -194,30 +213,40 @@ function showLine() {
     const line = scene.lines[lineIndex];
     document.getElementById('speaker').textContent = line.speaker;
     document.getElementById('message').textContent = line.text;
+    if (!clientLocked) {
+      const char = line.speaker === '名取 梓馬' ? '' : (charImages[line.speaker] || '');
+      if (char) {
+        document.getElementById('character').style.backgroundImage = 'url(' + char + ')';
+      } else {
+        document.getElementById('character').style.backgroundImage = 'none';
+      }
+    }
   } else if (sceneIndex < currentScenes.length - 1) {
     sceneIndex++;
-    lineIndex = 0;
-    document.getElementById('background').style.backgroundImage = 'url(' + currentScenes[sceneIndex].bg + ')';
+    setScene(sceneIndex);
     showLine();
   } else {
     document.getElementById('speaker').textContent = '';
     document.getElementById('message').textContent = '--- 完 ---';
+    finished = true;
   }
 }
 
 document.getElementById('startScreen').addEventListener('click', startGame);
-document.getElementById('nameOk').addEventListener('click', setName);
 Array.from(document.getElementsByClassName('epBtn')).forEach(btn => {
   btn.addEventListener('click', () => chooseEpisode(btn.dataset.ep));
 });
 document.getElementById('textBox').addEventListener('click', () => {
-  if (lineIndex < currentScenes[sceneIndex].lines.length) {
+  if (finished) {
+    document.getElementById('gameScreen').style.display = 'none';
+    document.getElementById('startScreen').style.display = 'flex';
+    finished = false;
+  } else if (lineIndex < currentScenes[sceneIndex].lines.length) {
     lineIndex++;
     showLine();
   } else if (sceneIndex < currentScenes.length - 1) {
     sceneIndex++;
-    lineIndex = 0;
-    document.getElementById('background').style.backgroundImage = 'url(' + currentScenes[sceneIndex].bg + ')';
+    setScene(sceneIndex);
     showLine();
   }
 });
