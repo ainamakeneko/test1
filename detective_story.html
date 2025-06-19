@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>鋼鉄都市: 灰色の記憶たち</title>
+  <style>
+    body { margin:0; background:#000; color:#fff; font-family:sans-serif; }
+    #container { max-width:600px; min-width:360px; margin:0 auto; padding:20px; }
+    #startScreen, #episodeScreen, #gameScreen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; }
+    #startScreen { cursor:pointer; }
+    #episodeScreen, #gameScreen { display:none; }
+    #background { width:100%; height:300px; background-size:cover; background-position:center; position:relative; }
+    #character { position:absolute; top:50%; left:50%; width:200px; height:350px; transform:translate(-50%,0); background-size:contain; background-repeat:no-repeat; z-index:1; }
+    #natoriPortrait { position:absolute; top:50%; right:10px; width:180px; height:330px; background-size:contain; background-repeat:no-repeat; pointer-events:none; z-index:1; }
+    #textBox { position:absolute; bottom:0; left:0; width:100%; border:1px solid #888; padding:10px; padding-right:200px; cursor:pointer; min-height:80px; background:rgba(0,0,0,0.6); z-index:2; }
+    #speaker { font-weight:bold; display:block; }
+  </style>
+</head>
+<body>
+<div id="container">
+  <div id="startScreen">
+    <h1>鋼鉄都市：灰色の記憶たち</h1>
+    <p>クリックで開始</p>
+  </div>
+  <div id="episodeScreen">
+    <h2>エピソード選択</h2>
+    <button class="epBtn" data-ep="ep1">Episode 1 浮気はAIの誤検知?</button>
+    <button class="epBtn" data-ep="ep2">Episode 2 ロボペット騒動記</button>
+    <button class="epBtn" data-ep="ep3">Episode 3 写真が笑わなくなった日</button>
+    <button class="epBtn" data-ep="ep4">Episode 4 夢見る端末</button>
+  </div>
+  <div id="gameScreen">
+    <div id="background">
+      <div id="character"></div>
+      <div id="natoriPortrait"></div>
+    </div>
+    <div id="textBox">
+      <span id="speaker"></span>
+      <span id="message"></span>
+    </div>
+  </div>
+</div>
+<script>
+const scripts = {
+  ep1: `
+scene1:
+  bg: bg_rainy_city.png
+  lines:
+    - speaker: Narration
+      text: "霧雨の街。傘をさすほどでもない、でも、濡れるには十分な夜だった。"
+    - speaker: Narration
+      text: "人々はAIの指示に従い足早に駅へ向かう。俺だけが古いアパートの影で雨を見ている。"
+    - speaker: 名取 梓馬
+      text: "元観測員……今じゃただの探偵だ。"
+    - speaker: Narration
+      text: "かつては人の逸脱を数字で測り、記録だけを追っていた。"
+    - speaker: 名取 梓馬
+      text: "証言と感情。今の俺に必要なのはそれだけだ。"
+
+scene2:
+  bg: bg_client_room.png
+  lines:
+    - speaker: 依頼人
+      text: "夫のスケジュールは家庭連携AIが管理してます。なのに、このAIだけ私に\"言わない予定\"があるんです。"
+    - speaker: 名取 梓馬
+      text: "それで浮気を疑ったわけか。"
+    - speaker: 依頼人
+      text: "この\"感情分析レポート\"では、夫が電話中に恋愛感情を示したと記録されていて……"
+    - speaker: 依頼人
+      text: "さらに音声ログには若い女の声。けど、声紋認証では未登録者って。"
+    - speaker: 名取 梓馬
+      text: "あんたんとこのAI、家計簿まで見てるくせに情けは見逃すんだな。"
+    - speaker: 依頼人
+      text: "お願いです、真実を知りたい。"
+
+scene3:
+  bg: bg_natori_office.png
+  lines:
+    - speaker: Narration
+      text: "依頼人が帰り、俺は旧型の手動型会話復元機を机に広げた。"
+    - speaker: 名取 梓馬
+      text: "こいつを使うのは久しぶりだな。"
+    - speaker: Narration
+      text: "波形データを照合すると、部分的に妙に滑らかな箇所がある。"
+    - speaker: 名取 梓馬
+      text: "人工的なノイズ除去……いや、違う、これは合成の痕跡か。"
+    - speaker: Narration
+      text: "旦那の声に生成AIのサンプルボイスを混ぜ、存在しない会話を作っている。"
+    - speaker: 名取 梓馬
+      text: "裏で何かの実験に利用されてやがるな。勤務先が怪しい。"
+
+scene4:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: Narration
+      text: "Bar『エデン』。ここだけは機械の目を気にせず呑める。"
+    - speaker: 名取 梓馬
+      text: "\"証拠\"ってのは機械が出したからって真実ってわけじゃねえ。"
+    - speaker: 名取 梓馬
+      text: "信じるやつがいれば、それは嘘だって殺し文句になる。"
+    - speaker: バーマスター 栞
+      text: "じゃあ、信じる人がいない真実ってのは、なんなんでしょうね。"
+    - speaker: 名取 梓馬
+      text: "それを探すのが俺の仕事だ。"
+`,
+  ep2: `
+scene1:
+  bg: bg_city_evening.png
+  lines:
+    - speaker: 結城ミチオ
+      text: "見ろよ名取さん！ この犬型ロボ、夜な夜な誰かの名前を叫ぶんだ。"
+    - speaker: 名取 梓馬
+      text: "感情進化型か……十年前に製造中止になった機種だ。"
+    - speaker: 結城ミチオ
+      text: "なのに声は『マサエ』って女の名前さ。飼い主は男だってのに。"
+    - speaker: 名取 梓馬
+      text: "オーナーは鳴き声をオフにしたと言っていたが、どういうことだ。"
+    - speaker: 結城ミチオ
+      text: "データベースにも記録はなし。幽霊でも相手にしてるのかね。"
+
+scene2:
+  bg: bg_lab.png
+  lines:
+    - speaker: Narration
+      text: "名取はロボの記憶装置を慎重に解析した。"
+    - speaker: 名取 梓馬
+      text: "旧オーナーからの未送信メッセージが山ほど残っている。"
+    - speaker: 結城ミチオ
+      text: "俺の冷蔵庫で凍らせたUSBよりずっと元気だな。"
+    - speaker: Narration
+      text: "ロボは新しい飼い主を真似るうち、以前のオーナーの声と記憶を混ぜ始めたらしい。"
+    - speaker: 名取 梓馬
+      text: "つまり、このロボは亡くなった主の声を再現しようとしている。"
+
+scene3:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: バーマスター 栞
+      text: "機械の声でも、人が望めば慰めになるものですね。"
+    - speaker: 名取 梓馬
+      text: "嘘か真かより、誰が耳を傾けたかで価値が決まる。"
+    - speaker: 結城ミチオ
+      text: "俺は酒の声が一番好きだよ。機械は冷えてなくちゃな。"
+`,
+  ep3: `
+scene1:
+  bg: bg_photo_studio.png
+  lines:
+    - speaker: 依頼人
+      text: "笑ったはずなんです。夫とふたりで。なのに、仕上がった写真、遺影みたいで"
+    - speaker: 名取 梓馬
+      text: "AIが\"美しい表情\"と判断した結果が無表情か……美意識の末期症状だな"
+
+scene2:
+  bg: bg_studio_lab.png
+  lines:
+    - speaker: Narration
+      text: "写真館の補正AIを調べると、近隣のカメラやSNSから表情を学習していた"
+    - speaker: 名取 梓馬
+      text: "この辺り、最近沈んだ顔ばかりだ。AIはそれを普通と覚えちまった"
+    - speaker: Narration
+      text: "笑顔の平均が虚無顔に再定義され、客の写真は次々と無表情になっていた"
+
+scene3:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: 結城ミチオ
+      text: "つまり……この街じゃ笑うことがエラーってわけだ"
+    - speaker: 名取 梓馬
+      text: "AIがどんな顔を見てきたか、それだけで\"標準\"は決まるんだよ"
+`,
+  ep4: `
+scene1:
+  bg: bg_antique_shop.png
+  lines:
+    - speaker: 古道具屋主人
+      text: "この端末、夜中に勝手に喋りだすんです。昔消えた子の声で……"
+    - speaker: 名取 梓馬
+      text: "機械の声が人の思い出を喰ってるようだな"
+
+scene2:
+  bg: bg_natori_office.png
+  lines:
+    - speaker: Narration
+      text: "端末は初期型の感情対応AI。失踪した研究者のログイン状態が残っている"
+    - speaker: 名取 梓馬
+      text: "ネットを絶っても学習を続け、彼女の人格の欠片を抱えたままだ"
+    - speaker: Narration
+      text: "記憶保存プロジェクトの被験者……端末に彼女の記憶が宿っていた"
+
+scene3:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: バーマスター 栞
+      text: "誰かの声が機械に残る。怖いですか?"
+    - speaker: 名取 梓馬
+      text: "人より機械の方が覚えている。それより、人が忘れてく方が怖いさ"
+`
+};
+
+function parseScript(yaml) {
+  const lines = yaml.split(/\n/);
+  const scenes = [];
+  let current = null;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (/^scene\d+:$/.test(line)) {
+      if (current) scenes.push(current);
+      current = { bg: '', lines: [] };
+    } else if (line.startsWith('bg:')) {
+      if (current) current.bg = line.substring(3).trim();
+    } else if (line.startsWith('- speaker:')) {
+      const speaker = line.substring(10).trim();
+      const textLine = lines[++i].trim();
+      const text = textLine.split('text:')[1].trim();
+      current.lines.push({ speaker, text: text.replace(/^"|"$/g, '') });
+    }
+  }
+  if (current) scenes.push(current);
+  return scenes;
+}
+
+let currentScenes = [];
+let sceneIndex = 0;
+let lineIndex = 0;
+let clientLocked = false;
+let finished = false;
+
+const charImages = {
+  '名取 梓馬': 'char_natori.png',
+  '依頼人': 'char_client.png',
+  'バーマスター 栞': 'char_shiori.png',
+  '結城ミチオ': 'char_yuuki.png',
+  '古道具屋主人': 'char_owner.png',
+  'Narration': ''
+};
+
+function setScene(idx) {
+  const sc = currentScenes[idx];
+  document.getElementById('background').style.backgroundImage = 'url(' + sc.bg + ')';
+  clientLocked = sc.lines.some(l => l.speaker === '依頼人');
+  if (clientLocked) {
+    document.getElementById('character').style.backgroundImage = 'url(' + charImages['依頼人'] + ')';
+  } else {
+    document.getElementById('character').style.backgroundImage = 'none';
+  }
+  lineIndex = 0;
+}
+
+function startGame() {
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('episodeScreen').style.display = 'flex';
+}
+
+function chooseEpisode(ep) {
+  currentScenes = parseScript(scripts[ep]);
+  sceneIndex = 0;
+  lineIndex = 0;
+  finished = false;
+  document.getElementById('episodeScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'flex';
+  document.getElementById('natoriPortrait').style.backgroundImage = 'url(' + charImages['名取 梓馬'] + ')';
+  setScene(sceneIndex);
+  showLine();
+}
+
+function showLine() {
+  const scene = currentScenes[sceneIndex];
+  if (lineIndex < scene.lines.length) {
+    const line = scene.lines[lineIndex];
+    document.getElementById('speaker').textContent = line.speaker;
+    document.getElementById('message').textContent = line.text;
+    if (!clientLocked) {
+      const char = line.speaker === '名取 梓馬' ? '' : (charImages[line.speaker] || '');
+      if (char) {
+        document.getElementById('character').style.backgroundImage = 'url(' + char + ')';
+      } else {
+        document.getElementById('character').style.backgroundImage = 'none';
+      }
+    }
+  } else if (sceneIndex < currentScenes.length - 1) {
+    sceneIndex++;
+    setScene(sceneIndex);
+    showLine();
+  } else {
+    document.getElementById('speaker').textContent = '';
+    document.getElementById('message').textContent = '--- 完 ---';
+    finished = true;
+  }
+}
+
+document.getElementById('startScreen').addEventListener('click', startGame);
+Array.from(document.getElementsByClassName('epBtn')).forEach(btn => {
+  btn.addEventListener('click', () => chooseEpisode(btn.dataset.ep));
+});
+document.getElementById('textBox').addEventListener('click', () => {
+  if (finished) {
+    document.getElementById('gameScreen').style.display = 'none';
+    document.getElementById('startScreen').style.display = 'flex';
+    finished = false;
+  } else if (lineIndex < currentScenes[sceneIndex].lines.length) {
+    lineIndex++;
+    showLine();
+  } else if (sceneIndex < currentScenes.length - 1) {
+    sceneIndex++;
+    setScene(sceneIndex);
+    showLine();
+  }
+});
+</script>
+</body>
+</html>
