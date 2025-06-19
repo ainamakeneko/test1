@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>鋼鉄都市: 灰色の記憶たち</title>
+  <style>
+    body { margin:0; background:#000; color:#fff; font-family:sans-serif; }
+    #container { max-width:600px; min-width:360px; margin:0 auto; padding:20px; }
+    #startScreen, #nameScreen, #episodeScreen, #gameScreen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; }
+    #startScreen { cursor:pointer; }
+    #nameScreen, #episodeScreen, #gameScreen { display:none; }
+    #textBox { position:absolute; bottom:0; left:0; width:100%; background:rgba(0,0,0,0.6); padding:10px; cursor:pointer; }
+    #speaker { font-weight:bold; display:block; }
+    #background { width:100%; height:300px; background-size:cover; background-position:center; position:relative; }
+  </style>
+</head>
+<body>
+<div id="container">
+  <div id="startScreen">
+    <h1>鋼鉄都市：灰色の記憶たち</h1>
+    <p>クリックで開始</p>
+  </div>
+  <div id="nameScreen">
+    <p>名前を入力してください</p>
+    <input id="playerName" type="text" />
+    <button id="nameOk">OK</button>
+  </div>
+  <div id="episodeScreen">
+    <h2>エピソード選択</h2>
+    <button class="epBtn" data-ep="ep1">Episode 1 濡れ猫と探偵</button>
+    <button class="epBtn" data-ep="ep2">Episode 2 ロボペット騒動記</button>
+  </div>
+  <div id="gameScreen">
+    <div id="background"></div>
+    <div id="textBox">
+      <span id="speaker"></span>
+      <span id="message"></span>
+    </div>
+  </div>
+</div>
+<script>
+const scripts = {
+  ep1: `scene1:
+  bg: bg_rainy_city.jpg
+  lines:
+    - speaker: Narration
+      text: "灰色の空。雨粒がアスファルトを叩く。"
+    - speaker: Narration
+      text: "繁華街の片隅、人気のない路地裏で足を止めた。"
+    - speaker: 名取 彰
+      text: "……猫、か？"
+    - speaker: Narration
+      text: "段ボールの中に、びしょ濡れの子猫がうずくまっている。"
+    - speaker: 名取 彰
+      text: "俺と同じだな。誰にも拾われず、濡れて、うずくまって。"
+    - speaker: Narration
+      text: "その瞬間、小さな決意が胸の奥で鳴った。"
+    - speaker: 名取 彰
+      text: "行くぞ。俺が、名前をつけてやる。"
+    - speaker: Narration
+      text: "名取 彰と、小さな命との出会いは、静かに幕を開けた――。"`,
+  ep2: `scene1:
+  bg: bg_city_evening.jpg
+  lines:
+    - speaker: 結城ミチオ
+      text: "見てくれ、名取さん！ 鳴いてるのはこの犬型ロボだ。しかも“誰か”の名前を呼んでる！"
+    - speaker: 名取
+      text: "……“マサエ”？ 飼い主は男だったろ"
+    - speaker: 結城ミチオ
+      text: "これが“マサエさんの声”らしいんだ。でもな、データベースには存在しねぇ。つまり……このロボ、誰かの死者と話してる"
+scene2:
+  bg: bg_lab.jpg
+  lines:
+    - speaker: Narration
+      text: "ロボの記憶媒体を名取が解析すると、旧オーナーの未送信メッセージが大量に残っていた。"
+    - speaker: Narration
+      text: "ロボは新オーナーの生活習慣を模倣するうちに、前のオーナーの音声と記憶を交雑再構築。"
+    - speaker: 名取
+      text: "つまり、AIが“死者の人格”を自己進化で再構成していたわけだ。"
+scene3:
+  bg: bg_bar_eden.jpg
+  lines:
+    - speaker: 栞
+      text: "あなたは“声”のない時代に生まれたのに、よく聞き分けられますね"
+    - speaker: 名取
+      text: "嘘か本当かより、“誰が聞きたかったか”が残るのが、声ってやつさ"`
+};
+
+function parseScript(yaml) {
+  const lines = yaml.split(/\n/);
+  const scenes = [];
+  let current = null;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (/^scene\d+:$/.test(line)) {
+      if (current) scenes.push(current);
+      current = { bg: '', lines: [] };
+    } else if (line.startsWith('bg:')) {
+      if (current) current.bg = line.substring(3).trim();
+    } else if (line.startsWith('- speaker:')) {
+      const speaker = line.substring(10).trim();
+      const textLine = lines[++i].trim();
+      const text = textLine.split('text:')[1].trim();
+      current.lines.push({ speaker, text: text.replace(/^"|"$/g, '') });
+    }
+  }
+  if (current) scenes.push(current);
+  return scenes;
+}
+
+let currentScenes = [];
+let sceneIndex = 0;
+let lineIndex = 0;
+
+function startGame() {
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('nameScreen').style.display = 'flex';
+}
+
+function setName() {
+  document.getElementById('nameScreen').style.display = 'none';
+  document.getElementById('episodeScreen').style.display = 'flex';
+}
+
+function chooseEpisode(ep) {
+  currentScenes = parseScript(scripts[ep]);
+  sceneIndex = 0;
+  lineIndex = 0;
+  document.getElementById('episodeScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'flex';
+  document.getElementById('background').style.backgroundImage = 'url(' + currentScenes[0].bg + ')';
+  showLine();
+}
+
+function showLine() {
+  const scene = currentScenes[sceneIndex];
+  if (lineIndex < scene.lines.length) {
+    const line = scene.lines[lineIndex];
+    document.getElementById('speaker').textContent = line.speaker;
+    document.getElementById('message').textContent = line.text;
+  } else if (sceneIndex < currentScenes.length - 1) {
+    sceneIndex++;
+    lineIndex = 0;
+    document.getElementById('background').style.backgroundImage = 'url(' + currentScenes[sceneIndex].bg + ')';
+    showLine();
+  } else {
+    document.getElementById('speaker').textContent = '';
+    document.getElementById('message').textContent = '--- 完 ---';
+  }
+}
+
+document.getElementById('startScreen').addEventListener('click', startGame);
+document.getElementById('nameOk').addEventListener('click', setName);
+Array.from(document.getElementsByClassName('epBtn')).forEach(btn => {
+  btn.addEventListener('click', () => chooseEpisode(btn.dataset.ep));
+});
+document.getElementById('textBox').addEventListener('click', () => {
+  if (lineIndex < currentScenes[sceneIndex].lines.length) {
+    lineIndex++;
+    showLine();
+  } else if (sceneIndex < currentScenes.length - 1) {
+    sceneIndex++;
+    lineIndex = 0;
+    document.getElementById('background').style.backgroundImage = 'url(' + currentScenes[sceneIndex].bg + ')';
+    showLine();
+  }
+});
+</script>
+</body>
+</html>
