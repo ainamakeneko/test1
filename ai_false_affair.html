@@ -38,11 +38,11 @@
     }
     #character {
       position: absolute;
-      bottom: 0;
+      top: 50%;
       left: 50%;
       width: 200px;
       height: 350px;
-      transform: translateX(-50%);
+      transform: translate(-50%, 0);
       background-size: contain;
       background-repeat: no-repeat;
     }
@@ -57,7 +57,7 @@
     }
     #natoriPortrait {
       position: absolute;
-      bottom: 10px;
+      top: 50%;
       right: 10px;
       width: 180px;
       height: 330px;
@@ -80,11 +80,11 @@
     <div id="gameScreen" style="display:none;">
       <div id="background">
         <div id="character"></div>
+        <div id="natoriPortrait"></div>
       </div>
       <div id="textBox">
         <span id="speaker"></span>
         <span id="message"></span>
-        <div id="natoriPortrait"></div>
       </div>
     </div>
   </div>
