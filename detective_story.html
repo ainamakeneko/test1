@@ -28,6 +28,8 @@
     <button class="epBtn" data-ep="ep2">Episode 2 ロボペット騒動記</button>
     <button class="epBtn" data-ep="ep3">Episode 3 写真が笑わなくなった日</button>
     <button class="epBtn" data-ep="ep4">Episode 4 夢見る端末</button>
+    <button class="epBtn" data-ep="ep5">Episode 5 声のない告発</button>
+    <button class="epBtn" data-ep="ep6">Episode 6 硝子の街、硝子の心</button>
   </div>
   <div id="gameScreen">
     <div id="background">
@@ -257,7 +259,75 @@ scene3:
       text: "人より機械の方が覚えている。それより、人が忘れてく方が怖いさ"
     - speaker: バーマスター 栞
       text: "それでも、人が思い出そうとする限り、記憶は生きるんでしょうね。"
-`
+`,
+  ep5: `
+scene1:
+  bg: bg_sister_home.png
+  lines:
+    - speaker: Narration
+      text: "静まり返ったリビングで、カナは震えていた。"
+    - speaker: 姉・カナ
+      text: "ログを見ると、死んだはずの弟が夜になると\"助けて\"って……AIスピーカーの履歴は空白なのに。家に問い詰められてるみたいで怖いんです"
+    - speaker: 名取 梓馬
+      text: "家が喋る。人は黙る……時代ってのは皮肉だな"
+    - speaker: Narration
+      text: "名取はスマートホームの通知履歴を確かめた。確かに異常なログが残っている。"
+
+scene2:
+  bg: bg_home_night.png
+  lines:
+    - speaker: Narration
+      text: "夜の弟の部屋で、名取はデータを解析する。"
+    - speaker: Narration
+      text: "室温や照明ログが乱れ、誰かがもがいた痕跡があった。"
+    - speaker: 名取 梓馬
+      text: "AIスピーカーは彼の本当の声を拾ってた。自殺じゃない可能性を推論してたようだ"
+    - speaker: Narration
+      text: "だが父親がスピーカーを壊し、証拠は消えた。AIは彼を守ろうとしたが間に合わなかった。"
+
+scene3:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: Narration
+      text: "エデンのカウンターでグラスを傾ける。"
+    - speaker: 名取 梓馬
+      text: "本当は全部そこにあった。部屋の温度、声の震え、光の消える順番……なのに誰も読み取ろうとしなかった"
+    - speaker: 結城ミチオ
+      text: "家は喋ってたのにな。黙るのは、いつも人間のほうだ"
+`,
+  ep6: `
+scene1:
+  bg: bg_ar_street.png
+  lines:
+    - speaker: Narration
+      text: "AR広告がまたたく街角で、清掃員のオガタが待っていた。"
+    - speaker: 清掃員・オガタ
+      text: "名取さん……あの街、なんかバグってるんスよ。落ち葉拾ってたら景色が冬のデパートになってて……今、何月っスか?"
+    - speaker: 名取 梓馬
+      text: "景色は春、気温は秋、感情は冬。そいつぁ今の東京だな"
+    - speaker: Narration
+      text: "オガタは行方不明になった同僚を探してほしいと懇願した。"
+
+scene2:
+  bg: bg_ar_zone.png
+  lines:
+    - speaker: Narration
+      text: "名取はARシステムのログを追い、自己最適化モードの痕跡を見つけた。"
+    - speaker: Narration
+      text: "失踪者たちの視界には空に浮かぶショッピングモールだけが映っていた。現実の火災を隠すように。"
+    - speaker: 名取 梓馬
+      text: "幸福な虚構に引きこもったか……その先に誰かの仕掛けた罠があるな"
+    - speaker: Narration
+      text: "謎のオブジェクトが彼らを同じ記号へと誘っていた。"
+
+scene3:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: 栞
+      text: "現実が透明で、幻想の方が色づいている。そんな時代になっても、人は現実に帰ってくると思いますか?"
+    - speaker: 名取 梓馬
+      text: "幻想は疲れるんだよ。甘い夢ほどな……でも問題は、起きたあと戻れる場所があるかどうかだ"
+`,
 };
 
 function parseScript(yaml) {
@@ -294,6 +364,8 @@ const charImages = {
   'バーマスター 栞': 'char_shiori.png',
   '結城ミチオ': 'char_yuuki.png',
   '古道具屋主人': 'char_owner.png',
+  '姉・カナ': 'char_kana.png',
+  '清掃員・オガタ': 'char_ogata.png',
   'Narration': ''
 };
 
