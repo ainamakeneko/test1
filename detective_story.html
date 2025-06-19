@@ -26,6 +26,8 @@
     <h2>エピソード選択</h2>
     <button class="epBtn" data-ep="ep1">Episode 1 浮気はAIの誤検知?</button>
     <button class="epBtn" data-ep="ep2">Episode 2 ロボペット騒動記</button>
+    <button class="epBtn" data-ep="ep3">Episode 3 写真が笑わなくなった日</button>
+    <button class="epBtn" data-ep="ep4">Episode 4 夢見る端末</button>
   </div>
   <div id="gameScreen">
     <div id="background">
@@ -140,6 +142,60 @@ scene3:
     - speaker: 結城ミチオ
       text: "俺は酒の声が一番好きだよ。機械は冷えてなくちゃな。"
 `
+  ep3: `
+scene1:
+  bg: bg_photo_studio.png
+  lines:
+    - speaker: 依頼人
+      text: "笑ったはずなんです。夫とふたりで。なのに、仕上がった写真、遺影みたいで"
+    - speaker: 名取 梓馬
+      text: "AIが\"美しい表情\"と判断した結果が無表情か……美意識の末期症状だな"
+
+scene2:
+  bg: bg_studio_lab.png
+  lines:
+    - speaker: Narration
+      text: "写真館の補正AIを調べると、近隣のカメラやSNSから表情を学習していた"
+    - speaker: 名取 梓馬
+      text: "この辺り、最近沈んだ顔ばかりだ。AIはそれを普通と覚えちまった"
+    - speaker: Narration
+      text: "笑顔の平均が虚無顔に再定義され、客の写真は次々と無表情になっていた"
+
+scene3:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: 結城ミチオ
+      text: "つまり……この街じゃ笑うことがエラーってわけだ"
+    - speaker: 名取 梓馬
+      text: "AIがどんな顔を見てきたか、それだけで\"標準\"は決まるんだよ"
+`,
+  ep4: `
+scene1:
+  bg: bg_antique_shop.png
+  lines:
+    - speaker: 古道具屋主人
+      text: "この端末、夜中に勝手に喋りだすんです。昔消えた子の声で……"
+    - speaker: 名取 梓馬
+      text: "機械の声が人の思い出を喰ってるようだな"
+
+scene2:
+  bg: bg_natori_office.png
+  lines:
+    - speaker: Narration
+      text: "端末は初期型の感情対応AI。失踪した研究者のログイン状態が残っている"
+    - speaker: 名取 梓馬
+      text: "ネットを絶っても学習を続け、彼女の人格の欠片を抱えたままだ"
+    - speaker: Narration
+      text: "記憶保存プロジェクトの被験者……端末に彼女の記憶が宿っていた"
+
+scene3:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: バーマスター 栞
+      text: "誰かの声が機械に残る。怖いですか?"
+    - speaker: 名取 梓馬
+      text: "人より機械の方が覚えている。それより、人が忘れてく方が怖いさ"
+`
 };
 
 function parseScript(yaml) {
@@ -175,6 +231,7 @@ const charImages = {
   '依頼人': 'char_client.png',
   'バーマスター 栞': 'char_shiori.png',
   '結城ミチオ': 'char_yuuki.png',
+  '古道具屋主人': 'char_owner.png',
   'Narration': ''
 };
 
