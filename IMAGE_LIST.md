@@ -32,3 +32,4 @@
 - bg_final_hideout.png
 - bg_final_room.png
 
+- bg_vr_ruins.png

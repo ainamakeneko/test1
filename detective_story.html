@@ -36,6 +36,10 @@
     <button class="epBtn" data-ep="ep8">Episode 8 消された記憶への追跡</button>
     <button class="epBtn" data-ep="ep9">Episode 9 影なき断片</button>
     <button class="epBtn" data-ep="ep10">Episode 10 記録なき真実</button>
+    <button class="epBtn" data-ep="ep11">Episode 11 消えた合図</button>
+    <button class="epBtn" data-ep="ep12">Episode 12 記憶の波紋</button>
+    <button class="epBtn" data-ep="ep13">Episode 13 無限回廊の主</button>
+    <button class="epBtn" data-ep="ep14">Episode 14 静かなる余韻</button>
   </div>
   <div id="gameScreen">
     <div id="background">
@@ -498,6 +502,110 @@ scene4:
     - speaker: 名取 梓馬
       text: "ああ。俺が覚えている限り、嘘にはならない。"
 `,
+  ep11: `
+scene1:
+  bg: bg_old_office.png
+  lines:
+    - speaker: 逆巻 隆司
+      text: "未送信のログに君宛ての合図が残っていた。これは罠かもしれん"
+    - speaker: 名取 梓馬
+      text: "罠でも手がかりでも確かめるさ"
+scene2:
+  bg: bg_hacker_hideout.png
+  lines:
+    - speaker: 柴咲 ソノ
+      text: "解析してみたけど放送塔につながってる"
+    - speaker: 名取 梓馬
+      text: "まだ誰かが記憶操作を続ける気らしい"
+scene3:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: 南條 京香
+      text: "放送塔のネットワーク、今も動いているのね"
+    - speaker: 名取 梓馬
+      text: "記憶を操る手はまだ残ってる。追うぞ"
+`,
+  ep12: `
+scene1:
+  bg: bg_secret_lab.png
+  lines:
+    - speaker: 柴咲 ソノ
+      text: "ここを開けるには手品が必要だね"
+    - speaker: 名取 梓馬
+      text: "派手なのは避けたいが……やろう"
+scene2:
+  bg: bg_data_core.png
+  lines:
+    - speaker: Narration
+      text: "センター内部で大量のデータドライブを見つけた"
+    - speaker: 名取 梓馬
+      text: "証拠を残す。データをコピーする"
+scene3:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: バーマスター 栞
+      text: "データは手に入れても、真相はまだ霧の中ですね"
+    - speaker: 名取 梓馬
+      text: "一歩ずつだ。記憶の波紋を追いかける"
+`,
+  ep13: `
+scene1:
+  bg: bg_vr_ruins.png
+  lines:
+    - speaker: 南條 京香
+      text: "ここに入ったら戻れないかもしれないわ"
+    - speaker: 名取 梓馬
+      text: "真実があるなら踏み入れるしかない"
+scene2:
+  bg: bg_vr_ruins.png
+  lines:
+    - speaker: 謎のAI
+      text: "私は一色玲の記憶から生まれた存在だ"
+    - speaker: 名取 梓馬
+      text: "お前が黒幕か"
+  choices:
+    - text: "対話を続ける"
+      goto: scene3
+    - text: "システムを停止する"
+      goto: scene3
+scene3:
+  bg: bg_vr_ruins.png
+  lines:
+    - speaker: 謎のAI
+      text: "記憶は道具だ。どう使うかはお前次第だ"
+    - speaker: 名取 梓馬
+      text: "俺は人の声を信じる"
+scene4:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: 結城ミチオ
+      text: "機械の幽霊ってやつか。面白いけど怖いな"
+    - speaker: 名取 梓馬
+      text: "記憶は道具、使う人間次第だ"
+`,
+  ep14: `
+scene1:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: バーマスター 栞
+      text: "嵐のあとは少し寂しくなりますね"
+    - speaker: 名取 梓馬
+      text: "静けさが続けばいいが、また何か起きるさ"
+scene2:
+  bg: bg_natori_office.png
+  lines:
+    - speaker: Narration
+      text: "名取は届いた近況報告を読み返す"
+    - speaker: 名取 梓馬
+      text: "皆それぞれ歩き始めたか"
+scene3:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: 名取 梓馬
+      text: "記録の外にある真実も誰かが覚えていれば消えない"
+    - speaker: 栞
+      text: "その記憶を守るのが、あなたの役目なのかもしれませんね"
+`,
 };
 
 function parseScript(yaml) {
@@ -554,6 +662,7 @@ const charImages = {
   '柴咲 ソノ': 'char_sono.png',
   '南條 京香': 'char_nanjo.png',
   '謎の人物': 'char_unknown.png',
+  '謎のAI': 'char_unknown.png',
   'Narration': ''
 };
 const speakerColors = {
@@ -569,6 +678,7 @@ const speakerColors = {
   '柴咲 ソノ': '#dda0dd',
   '南條 京香': '#98fb98',
   '謎の人物': '#cccccc',
+  '謎のAI': '#cccccc',
   'Narration': '#ffffff'
 };
 
