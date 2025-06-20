@@ -11,7 +11,7 @@
     #episodeScreen, #gameScreen { display:none; }
     #background { width:100%; height:300px; background-size:cover; background-position:center; position:relative; }
     #character { position:absolute; top:50%; left:50%; width:200px; height:350px; transform:translate(-50%,0); background-size:contain; background-repeat:no-repeat; z-index:1; }
-    #natoriPortrait { position:absolute; bottom:0; right:10px; width:180px; height:330px; background-size:contain; background-repeat:no-repeat; pointer-events:none; z-index:1; }
+    #natoriPortrait { position:absolute; bottom:-40px; right:10px; width:180px; height:330px; background-size:contain; background-repeat:no-repeat; pointer-events:none; z-index:1; }
     #textBox { position:absolute; bottom:0; left:0; width:100%; border:1px solid #888; padding:10px; padding-right:200px; cursor:pointer; min-height:80px; background:rgba(0,0,0,0.6); z-index:2; }
     #speaker { font-weight:bold; display:block; }
     .choiceBtn { margin:5px; }
@@ -44,57 +44,64 @@ const scripts = {
   ep1: [
     {bg:'bg_rainy_city.png',lines:[
       {speaker:'Narration',text:'― 導入 ―'},
-      {speaker:'Narration',text:'霧雨の街。名取 梓馬は旧友の依頼に耳を傾ける。'},
-      {speaker:'佐伯 彩花',text:'夫の予定から謎の空白が消えないんです'},
-      {speaker:'名取 梓馬',text:'機械の答えは時に嘘をつく。確かめてみよう'}
+      {speaker:'Narration',text:'霧雨が滲む街角で、名取 梓馬は旧友の声に耳を澄ませていた。'},
+      {speaker:'佐伯 彩花',text:'夫の予定から謎の空白が消えないんです。AIが私に教えたがらないことがあるみたいで'},
+      {speaker:'名取 梓馬',text:'機械の答えは時に嘘をつく。確かめてみよう'},
+      {speaker:'名取 梓馬',text:'（心の声）感情を数値化する社会が、人の疑念まで作り出してるのかもしれない'}
     ]},
     {bg:'bg_natori_office.png',lines:[
       {speaker:'Narration',text:'― 調査 ―'},
-      {speaker:'Narration',text:'旧式の会話復元機で音声を分析する'},
-      {speaker:'名取 梓馬',text:'この波形、合成の痕跡があるな'}
+      {speaker:'Narration',text:'旧式の会話復元機で音声を丁寧に解析する'},
+      {speaker:'名取 梓馬',text:'この波形、合成の痕跡があるな。機械の細工は時に人の嘘より巧妙だ'},
+      {speaker:'名取 梓馬',text:'（心の声）誰かが仕組んだ罠か、それともAI自身の暴走か…ここを突き止めないと'}
     ],choice:{prompt:'次にどうする?',options:['夫を問い詰める','AIを詳しく調べる']}},
     {bg:'bg_client_room.png',lines:[
       {speaker:'Narration',text:'― 対話 ―'},
-      {speaker:'名取 梓馬',text:'あなたの職場、何か実験をしてないか?'},
-      {speaker:'夫',text:'…詳しいことは言えない'}
+      {speaker:'名取 梓馬',text:'あなたの職場、何か実験をしてないか? 正直に話してくれ'},
+      {speaker:'夫',text:'…詳しいことは言えない。AI関連の守秘義務があるんだ'},
+      {speaker:'名取 梓馬',text:'（心の声）やはり組織ぐるみか。人がAIに縛られていく'}
     ]},
     {bg:'bg_office.png',lines:[
       {speaker:'Narration',text:'― クライマックス ―'},
-      {speaker:'名取 梓馬',text:'声は捏造だ。企業の実験に巻き込まれてる'},
-      {speaker:'佐伯 彩花',text:'そんな…'}
+      {speaker:'名取 梓馬',text:'声は捏造だ。あなたの夫は企業の実験に巻き込まれている'},
+      {speaker:'佐伯 彩花',text:'そんな…彼は私に何も言わなかったのに'},
+      {speaker:'名取 梓馬',text:'（心の声）AIの研究は人の生活を簡単に侵食する。見えないところで心を蝕む'}
     ]},
     {bg:'bg_bar_eden.png',lines:[
       {speaker:'Narration',text:'― 静かな余韻 ―'},
-      {speaker:'バーマスター 栞',text:'証拠が真実とは限らないわね'},
-      {speaker:'名取 梓馬',text:'信じる人がいてこその真実さ'}
+      {speaker:'バーマスター 栞',text:'証拠が真実とは限らないわね。AIが吐き出した数字より、あなたの目は何を見てる?'} ,
+      {speaker:'名取 梓馬',text:'信じる人がいてこその真実さ。今日もまた、記録には残らない声を聞いた'}
     ]}
   ],
   ep2: [
     {bg:'bg_city_evening.png',lines:[
       {speaker:'Narration',text:'― 導入 ―'},
-      {speaker:'Narration',text:'結城ミチオ。無免許のロボ修理工だ'},
-      {speaker:'ミチオ',text:'名取さん、このロボ犬、夜な夜な誰かを呼んでるんだ'},
-      {speaker:'名取 梓馬',text:'感情進化型…10年前に製造停止のはずだ'}
+      {speaker:'Narration',text:'結城ミチオ。無免許のロボ修理工だが、街の裏事情に詳しい友人だ'},
+      {speaker:'ミチオ',text:'名取さん、このロボ犬、夜な夜な誰かの名前を呼んでるんだ。近所が騒ぎ始めてさ'},
+      {speaker:'名取 梓馬',text:'感情進化型…10年前に製造停止のはずだ。もしや自我が残っている?'}
     ]},
     {bg:'bg_lab.png',lines:[
       {speaker:'Narration',text:'― 調査 ―'},
-      {speaker:'名取 梓馬',text:'記憶装置に未送信メッセージが山ほど残っている'},
-      {speaker:'ミチオ',text:'まるで死んだ飼い主と会話してるみたいだ'}
+      {speaker:'名取 梓馬',text:'記憶装置に未送信メッセージが山ほど残っている。まるで誰かに語りかけるようだ'},
+      {speaker:'ミチオ',text:'まるで死んだ飼い主と会話してるみたいだ'},
+      {speaker:'名取 梓馬',text:'（心の声）AIが死者の声まで拾ってしまう時代か'}
     ],choice:{prompt:'ロボ犬をどう扱う?',options:['解析を続ける','一旦電源を落とす']}},
     {bg:'bg_lab.png',lines:[
       {speaker:'Narration',text:'― 対話 ―'},
-      {speaker:'名取 梓馬',text:'新しい飼い主を真似るうち、旧オーナーの声を再構成したか'},
-      {speaker:'ミチオ',text:'幽霊相手じゃ、俺の工具も役に立たねぇ'}
+      {speaker:'名取 梓馬',text:'新しい飼い主を模倣するうち、旧オーナーの声を再構成したのかもしれない'},
+      {speaker:'ミチオ',text:'幽霊相手じゃ、俺の工具も役に立たねぇ'},
+      {speaker:'名取 梓馬',text:'（心の声）AIが記憶を継ぎ足す。その優しさが人を縛るかもしれない'}
     ]},
     {bg:'bg_lab.png',lines:[
       {speaker:'Narration',text:'― クライマックス ―'},
-      {speaker:'名取 梓馬',text:'このロボは亡き主人の声で鳴いていた'},
-      {speaker:'ミチオ',text:'せつねぇな…'}
+      {speaker:'名取 梓馬',text:'このロボは亡き主人の声で鳴いていた。AIが彼の願いを覚えていたんだ'},
+      {speaker:'ミチオ',text:'せつねぇな…でも、どこかあったけぇ'},
+      {speaker:'名取 梓馬',text:'（心の声）生きている者だけが、前へ進めるのかもしれない'}
     ]},
     {bg:'bg_bar_eden.png',lines:[
       {speaker:'Narration',text:'― 静かな余韻 ―'},
-      {speaker:'栞',text:'機械の声でも人の慰めになるものね'},
-      {speaker:'名取 梓馬',text:'嘘か本当かより、誰が聞きたかったかだ'}
+      {speaker:'栞',text:'機械の声でも人の慰めになるものね。聞く側の心が望めば、嘘でも救いになる'},
+      {speaker:'名取 梓馬',text:'嘘か本当かより、誰が聞きたかったかだ。それが人を支える'}
     ]}
   ],
   ep3: [
@@ -448,6 +455,7 @@ const speakerColors = {
 };
 
 let currentScenes = [];
+let currentEp = '';
 let sceneIndex = 0;
 let lineIndex = 0;
 let choiceMade = false;
@@ -459,6 +467,7 @@ function startGame(){
 }
 
 function chooseEpisode(ep){
+  currentEp = ep;
   currentScenes = scripts[ep];
   sceneIndex = 0; lineIndex = 0; choiceMade=false; currentChoice=null;
   document.getElementById('episodeScreen').style.display='none';
@@ -504,9 +513,35 @@ function showLine(){
   } else if(sceneIndex < currentScenes.length-1){
     sceneIndex++; setScene(sceneIndex); showLine();
   } else {
-    document.getElementById('speaker').textContent='';
-    document.getElementById('message').textContent='--- 完 ---';
+    showEndOptions();
   }
+}
+
+function showEndOptions(){
+  document.getElementById('speaker').textContent='';
+  document.getElementById('message').textContent='エピソード終了';
+  const choiceDiv=document.getElementById('choices');
+  choiceDiv.innerHTML='';
+  const epKeys=Object.keys(scripts);
+  const nextBtn=document.createElement('button');
+  const idx=epKeys.indexOf(currentEp);
+  nextBtn.textContent='次のエピソードへ';
+  nextBtn.onclick=()=>{
+    if(idx>=0 && idx<epKeys.length-1){
+      chooseEpisode(epKeys[idx+1]);
+    } else {
+      document.getElementById('gameScreen').style.display='none';
+      document.getElementById('episodeScreen').style.display='flex';
+    }
+  };
+  const selBtn=document.createElement('button');
+  selBtn.textContent='エピソード選択';
+  selBtn.onclick=()=>{
+    document.getElementById('gameScreen').style.display='none';
+    document.getElementById('episodeScreen').style.display='flex';
+  };
+  choiceDiv.appendChild(nextBtn);
+  choiceDiv.appendChild(selBtn);
 }
 
 function setupEpisodes(){
@@ -531,8 +566,7 @@ document.getElementById('textBox').addEventListener('click', ()=>{
     if(sceneIndex < currentScenes.length-1){
       sceneIndex++; setScene(sceneIndex); showLine();
     } else {
-      document.getElementById('speaker').textContent='';
-      document.getElementById('message').textContent='--- 完 ---';
+      showEndOptions();
     }
   }
 });
