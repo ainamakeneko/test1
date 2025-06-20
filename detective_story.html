@@ -14,6 +14,8 @@
     #natoriPortrait { position:absolute; top:50%; right:10px; width:180px; height:330px; background-size:contain; background-repeat:no-repeat; pointer-events:none; z-index:1; }
     #textBox { position:absolute; bottom:0; left:0; width:100%; border:1px solid #888; padding:10px; padding-right:200px; cursor:pointer; min-height:80px; background:rgba(0,0,0,0.6); z-index:2; }
     #speaker { font-weight:bold; display:block; }
+    #choices { margin-top:10px; }
+    #choices button { margin-right:10px; }
   </style>
 </head>
 <body>
@@ -32,6 +34,8 @@
     <button class="epBtn" data-ep="ep6">Episode 6 硝子の街、硝子の心</button>
     <button class="epBtn" data-ep="ep7">Episode 7 沈黙する観測網</button>
     <button class="epBtn" data-ep="ep8">Episode 8 消された記憶への追跡</button>
+    <button class="epBtn" data-ep="ep9">Episode 9 影なき断片</button>
+    <button class="epBtn" data-ep="ep10">Episode 10 記録なき真実</button>
   </div>
   <div id="gameScreen">
     <div id="background">
@@ -41,6 +45,7 @@
     <div id="textBox">
       <span id="speaker"></span>
       <span id="message"></span>
+      <div id="choices"></div>
     </div>
   </div>
 </div>
@@ -419,17 +424,94 @@ scene3:
     - speaker: 柴咲 ソノ
       text: "証拠の断片は残ってる。次はもっと深く潜ろう"
 `,
+  ep9: `
+scene1:
+  bg: bg_abandoned_station.png
+  lines:
+    - speaker: Narration
+      text: "地下へ続く廃駅。名取とソノは静かに降り立った。"
+    - speaker: 柴咲 ソノ
+      text: "公式ログじゃ存在しない場所さ。"
+    - speaker: 名取 梓馬
+      text: "闇の中に残った記憶を探るぞ。"
+scene2:
+  bg: bg_data_core.png
+  lines:
+    - speaker: Narration
+      text: "サーバラックが並ぶ暗い通路。"
+    - speaker: 柴咲 ソノ
+      text: "分かれ道だね。"
+  choices:
+    - text: "旧端末の部屋を調べる"
+      goto: scene3
+    - text: "電源室を覗く"
+      goto: scene3
+scene3:
+  bg: bg_data_core.png
+  lines:
+    - speaker: Narration
+      text: "古い端末の山の中で一色玲の名を刻んだメモリを見つけた。"
+    - speaker: 名取 梓馬
+      text: "やはりここに痕跡が残っていたか。"
+scene4:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: 柴咲 ソノ
+      text: "記録の空白に人の影……街の心臓に触れた気分だ"
+    - speaker: 名取 梓馬
+      text: "まだ終わりじゃない。次でケリをつける"
+`,
+  ep10: `
+scene1:
+  bg: bg_final_hideout.png
+  lines:
+    - speaker: 南條 京香
+      text: "ここが一色玲の潜伏先。準備はいい?"
+    - speaker: 名取 梓馬
+      text: "記憶を塗り替えた張本人に会う。覚悟はできてる。"
+scene2:
+  bg: bg_final_room.png
+  lines:
+    - speaker: 謎の人物
+      text: "私を探すとは、物好きだな。"
+    - speaker: 名取 梓馬
+      text: "お前が一色玲か。"
+    - speaker: 謎の人物
+      text: "記録の外で生きる自由、興味はないか？"
+  choices:
+    - text: "問いただす"
+      goto: scene3
+    - text: "黙って証拠を集める"
+      goto: scene3
+scene3:
+  bg: bg_final_room.png
+  lines:
+    - speaker: 名取 梓馬
+      text: "俺は記憶じゃなく、人の心で真実を残す。"
+    - speaker: 謎の人物
+      text: "好きにしろ。どうせ誰も覚えない。"
+scene4:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: バーマスター 栞
+      text: "真実を知っても記録に残らない。それでも追うんですか？"
+    - speaker: 名取 梓馬
+      text: "ああ。俺が覚えている限り、嘘にはならない。"
+`,
 };
 
 function parseScript(yaml) {
   const lines = yaml.split(/\n/);
   const scenes = [];
+  const map = {};
   let current = null;
+  let name = '';
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
     if (/^scene\d+:$/.test(line)) {
-      if (current) scenes.push(current);
-      current = { bg: '', lines: [] };
+      if (current) { scenes.push(current); map[name] = scenes.length - 1; }
+      name = line.replace(':', '');
+      current = { name, bg: '', lines: [], choices: null };
     } else if (line.startsWith('bg:')) {
       if (current) current.bg = line.substring(3).trim();
     } else if (line.startsWith('- speaker:')) {
@@ -437,13 +519,23 @@ function parseScript(yaml) {
       const textLine = lines[++i].trim();
       const text = textLine.split('text:')[1].trim();
       current.lines.push({ speaker, text: text.replace(/^"|"$/g, '') });
+    } else if (line.startsWith('choices:')) {
+      current.choices = [];
+      while (++i < lines.length) {
+        const l = lines[i].trim();
+        if (!l.startsWith('-')) { i--; break; }
+        const text = l.split('text:')[1].trim().replace(/^"|"$/g, '');
+        const goto = lines[++i].trim().split('goto:')[1].trim();
+        current.choices.push({ text, goto });
+      }
     }
   }
-  if (current) scenes.push(current);
-  return scenes;
+  if (current) { scenes.push(current); map[name] = scenes.length - 1; }
+  return { scenes, map };
 }
 
 let currentScenes = [];
+let sceneMap = {};
 let sceneIndex = 0;
 let lineIndex = 0;
 let clientLocked = false;
@@ -464,6 +556,21 @@ const charImages = {
   '謎の人物': 'char_unknown.png',
   'Narration': ''
 };
+const speakerColors = {
+  '名取 梓馬': '#ffd700',
+  '彩花': '#ffb6c1',
+  '美咲': '#ffb6c1',
+  'バーマスター 栞': '#98fb98',
+  '結城ミチオ': '#add8e6',
+  '守山 五郎': '#ffa07a',
+  '姉・カナ': '#ffb6c1',
+  '清掃員・オガタ': '#ffa07a',
+  '逆巻 隆司': '#add8e6',
+  '柴咲 ソノ': '#dda0dd',
+  '南條 京香': '#98fb98',
+  '謎の人物': '#cccccc',
+  'Narration': '#ffffff'
+};
 
 function setScene(idx) {
   const sc = currentScenes[idx];
@@ -483,7 +590,9 @@ function startGame() {
 }
 
 function chooseEpisode(ep) {
-  currentScenes = parseScript(scripts[ep]);
+  const parsed = parseScript(scripts[ep]);
+  currentScenes = parsed.scenes;
+  sceneMap = parsed.map;
   sceneIndex = 0;
   lineIndex = 0;
   finished = false;
@@ -496,18 +605,29 @@ function chooseEpisode(ep) {
 
 function showLine() {
   const scene = currentScenes[sceneIndex];
+  document.getElementById('choices').innerHTML = '';
   if (lineIndex < scene.lines.length) {
     const line = scene.lines[lineIndex];
-    document.getElementById('speaker').textContent = line.speaker;
+    const speakerEl = document.getElementById('speaker');
+    speakerEl.textContent = line.speaker;
+    speakerEl.style.color = speakerColors[line.speaker] || '#ffffff';
     document.getElementById('message').textContent = line.text;
     if (!clientLocked) {
       const char = line.speaker === '名取 梓馬' ? '' : (charImages[line.speaker] || '');
-      if (char) {
-        document.getElementById('character').style.backgroundImage = 'url(' + char + ')';
-      } else {
-        document.getElementById('character').style.backgroundImage = 'none';
-      }
+      document.getElementById('character').style.backgroundImage = char ? 'url(' + char + ')' : 'none';
     }
+  } else if (scene.choices) {
+    scene.choices.forEach(ch => {
+      const btn = document.createElement('button');
+      btn.textContent = ch.text;
+      btn.addEventListener('click', () => {
+        sceneIndex = sceneMap[ch.goto];
+        lineIndex = 0;
+        setScene(sceneIndex);
+        showLine();
+      });
+      document.getElementById('choices').appendChild(btn);
+    });
   } else if (sceneIndex < currentScenes.length - 1) {
     sceneIndex++;
     setScene(sceneIndex);
@@ -528,6 +648,8 @@ document.getElementById('textBox').addEventListener('click', () => {
     document.getElementById('gameScreen').style.display = 'none';
     document.getElementById('startScreen').style.display = 'flex';
     finished = false;
+  } else if (document.getElementById('choices').children.length > 0) {
+    // wait for choice selection
   } else if (lineIndex < currentScenes[sceneIndex].lines.length) {
     lineIndex++;
     showLine();

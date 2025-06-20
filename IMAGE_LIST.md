@@ -27,3 +27,8 @@
 - char_sono.png
 - char_unknown.png
 - char_yuuki.png
+- bg_abandoned_station.png
+- bg_data_core.png
+- bg_final_hideout.png
+- bg_final_room.png
+
