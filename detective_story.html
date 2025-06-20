@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>鋼鉄都市: 灰色の記憶たち</title>
+  <style>
+    body { margin:0; background:#000; color:#fff; font-family:sans-serif; }
+    #container { max-width:600px; min-width:360px; margin:0 auto; padding:20px; }
+    #startScreen, #episodeScreen, #gameScreen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; }
+    #startScreen { cursor:pointer; }
+    #episodeScreen, #gameScreen { display:none; }
+    #background { width:100%; height:300px; background-size:cover; background-position:center; position:relative; }
+    #character { position:absolute; top:50%; left:50%; width:200px; height:350px; transform:translate(-50%,0); background-size:contain; background-repeat:no-repeat; z-index:1; }
+    #natoriPortrait { position:absolute; top:50%; right:10px; width:180px; height:330px; background-size:contain; background-repeat:no-repeat; pointer-events:none; z-index:1; }
+    #textBox { position:absolute; bottom:0; left:0; width:100%; border:1px solid #888; padding:10px; padding-right:200px; cursor:pointer; min-height:80px; background:rgba(0,0,0,0.6); z-index:2; }
+    #speaker { font-weight:bold; display:block; }
+  </style>
+</head>
+<body>
+<div id="container">
+  <div id="startScreen">
+    <h1>鋼鉄都市：灰色の記憶たち</h1>
+    <p>クリックで開始</p>
+  </div>
+  <div id="episodeScreen">
+    <h2>エピソード選択</h2>
+    <button class="epBtn" data-ep="ep1">Episode 1 浮気はAIの誤検知?</button>
+    <button class="epBtn" data-ep="ep2">Episode 2 ロボペット騒動記</button>
+    <button class="epBtn" data-ep="ep3">Episode 3 写真が笑わなくなった日</button>
+    <button class="epBtn" data-ep="ep4">Episode 4 夢見る端末</button>
+    <button class="epBtn" data-ep="ep5">Episode 5 声のない告発</button>
+    <button class="epBtn" data-ep="ep6">Episode 6 硝子の街、硝子の心</button>
+    <button class="epBtn" data-ep="ep7">Episode 7 沈黙する観測網</button>
+    <button class="epBtn" data-ep="ep8">Episode 8 消された記憶への追跡</button>
+  </div>
+  <div id="gameScreen">
+    <div id="background">
+      <div id="character"></div>
+      <div id="natoriPortrait"></div>
+    </div>
+    <div id="textBox">
+      <span id="speaker"></span>
+      <span id="message"></span>
+    </div>
+  </div>
+</div>
+<script>
+const scripts = {
+  ep1: `
+scene1:
+  bg: bg_rainy_city.png
+  lines:
+    - speaker: Narration
+      text: "霧雨の街。傘をさすほどでもない、でも、濡れるには十分な夜だった。"
+    - speaker: Narration
+      text: "人々はAIの指示に従い足早に駅へ向かう。俺だけが古いアパートの影で雨を見ている。"
+    - speaker: 名取 梓馬
+      text: "元観測員……今じゃただの探偵だ。"
+    - speaker: Narration
+      text: "かつては人の逸脱を数字で測り、記録だけを追っていた。"
+    - speaker: 名取 梓馬
+      text: "証言と感情。今の俺に必要なのはそれだけだ。"
+    - speaker: Narration
+      text: "遠くでサイレンが鳴り、雨の匂いがさらに強くなった。"
+    - speaker: 名取 梓馬
+      text: "この街に、まだ俺の仕事は残っているようだ。"
+
+scene2:
+  bg: bg_client_room.png
+  lines:
+    - speaker: Narration
+      text: "翌朝、彩花の住む高層マンションを訪れた。"
+    - speaker: 彩花
+      text: "夫のスケジュールは家庭連携AIが管理してます。なのに、このAIだけ私に\"言わない予定\"があるんです。"
+    - speaker: 名取 梓馬
+      text: "それで浮気を疑ったわけか。"
+    - speaker: 名取 梓馬
+      text: "彩花さん、旦那さんと最近会話は？"
+    - speaker: 彩花
+      text: "ほとんどありません。AI経由のメッセージばかりで……"
+    - speaker: 彩花
+      text: "この\"感情分析レポート\"では、夫が電話中に恋愛感情を示したと記録されていて……"
+    - speaker: 彩花
+      text: "さらに音声ログには若い女の声。けど、声紋認証では未登録者って。"
+    - speaker: 名取 梓馬
+      text: "あんたんとこのAI、家計簿まで見てるくせに情けは見逃すんだな。"
+    - speaker: 彩花
+      text: "お願いです、真実を知りたい。"
+    - speaker: 名取 梓馬
+      text: "わかった。俺が確かめてみよう。"
+    - speaker: Narration
+      text: "彼女は不安げにうつむき、AI端末を差し出した。"
+
+scene3:
+  bg: bg_natori_office.png
+  lines:
+    - speaker: Narration
+      text: "調査のため、古びたオフィスへ戻った。機材の埃を払いながら準備を始める。"
+    - speaker: Narration
+      text: "彩花が帰り、俺は旧型の手動型会話復元機を机に広げた。"
+    - speaker: 名取 梓馬
+      text: "彩花を巻き込みたくはないが、これ以上放っておけない。"
+    - speaker: 名取 梓馬
+      text: "こいつを使うのは久しぶりだな。"
+    - speaker: Narration
+      text: "波形データを照合すると、部分的に妙に滑らかな箇所がある。"
+    - speaker: 名取 梓馬
+      text: "人工的なノイズ除去……いや、違う、これは合成の痕跡か。"
+    - speaker: Narration
+      text: "旦那の声に生成AIのサンプルボイスを混ぜ、存在しない会話を作っている。"
+    - speaker: 名取 梓馬
+      text: "裏で何かの実験に利用されてやがるな。勤務先が怪しい。"
+    - speaker: 名取 梓馬
+      text: "これじゃ、AIが作った幻を真実と思い込むのも無理はない。"
+    - speaker: Narration
+      text: "夫の会社には、まだ見えない闇が潜んでいるようだ。"
+
+scene4:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: Narration
+      text: "手がかりを胸に、夜のBar『エデン』へ向かった。"
+    - speaker: Narration
+      text: "Bar『エデン』。ここだけは機械の目を気にせず呑める。"
+    - speaker: 名取 梓馬
+      text: "\"証拠\"ってのは機械が出したからって真実ってわけじゃねえ。"
+    - speaker: 名取 梓馬
+      text: "信じるやつがいれば、それは嘘だって殺し文句になる。"
+    - speaker: バーマスター 栞
+      text: "じゃあ、信じる人がいない真実ってのは、なんなんでしょうね。"
+    - speaker: 名取 梓馬
+      text: "それを探すのが俺の仕事だ。"
+    - speaker: 名取 梓馬
+      text: "……さて、次はどこから攻めるか。"
+`,
+  ep2: `
+scene1:
+  bg: bg_city_evening.png
+  lines:
+    - speaker: Narration
+      text: "夕暮れの公園で、結城ミチオが犬型ロボットを抱えて待っていた。"
+    - speaker: 結城ミチオ
+      text: "見ろよ名取さん！ この犬型ロボ、夜な夜な誰かの名前を叫ぶんだ。"
+    - speaker: 名取 梓馬
+      text: "感情進化型か……十年前に製造中止になった機種だ。"
+    - speaker: 結城ミチオ
+      text: "なのに声は『マサエ』って女の名前さ。飼い主は男だってのに。"
+    - speaker: 名取 梓馬
+      text: "オーナーは鳴き声をオフにしたと言っていたが、どういうことだ。"
+    - speaker: 結城ミチオ
+      text: "データベースにも記録はなし。幽霊でも相手にしてるのかね。"
+    - speaker: 名取 梓馬
+      text: "声の主が誰か、まずはそこから洗ってみるか。"
+    - speaker: Narration
+      text: "ロボが短く鳴き、遠くのマンションを見上げた。"
+
+scene2:
+  bg: bg_lab.png
+  lines:
+    - speaker: Narration
+      text: "結城の工房に戻り、ロボの記憶装置を解析する。"
+    - speaker: Narration
+      text: "名取はロボの記憶装置を慎重に解析した。"
+    - speaker: 名取 梓馬
+      text: "旧オーナーからの未送信メッセージが山ほど残っている。"
+    - speaker: 結城ミチオ
+      text: "俺の冷蔵庫で凍らせたUSBよりずっと元気だな。"
+    - speaker: Narration
+      text: "ロボは新しい飼い主を真似るうち、以前のオーナーの声と記憶を混ぜ始めたらしい。"
+    - speaker: 名取 梓馬
+      text: "つまり、このロボは亡くなった主の声を再現しようとしている。"
+    - speaker: 結城ミチオ
+      text: "おいおい、そんなホラー聞いてねえぞ。"
+    - speaker: Narration
+      text: "名取はロボを見つめ、そっと電源を落とした。"
+
+scene3:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: Narration
+      text: "調査後、Bar『エデン』で一息つく。"
+    - speaker: バーマスター 栞
+      text: "機械の声でも、人が望めば慰めになるものですね。"
+    - speaker: 名取 梓馬
+      text: "嘘か真かより、誰が耳を傾けたかで価値が決まる。"
+    - speaker: 結城ミチオ
+      text: "俺は酒の声が一番好きだよ。機械は冷えてなくちゃな。"
+    - speaker: 名取 梓馬
+      text: "乾杯ぐらいは、人同士でしておくか。"
+`,
+  ep3: `
+scene1:
+  bg: bg_photo_studio.png
+  lines:
+    - speaker: Narration
+      text: "美咲は名取の遠い親戚の知人で、頼るように視線を落とした。"
+    - speaker: Narration
+      text: "薄暗い写真館の受付で、新婚の美咲が震えていた。"
+    - speaker: 美咲
+      text: "笑ったはずなんです。夫とふたりで。なのに、仕上がった写真、遺影みたいで"
+    - speaker: 名取 梓馬
+      text: "AIが\"美しい表情\"と判断した結果が無表情か……美意識の末期症状だな"
+    - speaker: Narration
+      text: "名取は手にした写真をまじまじと見つめる。"
+
+scene2:
+  bg: bg_studio_lab.png
+  lines:
+    - speaker: Narration
+      text: "名取はスタジオ奥の機材室に入り、システムの端末を開いた。"
+    - speaker: Narration
+      text: "写真館の補正AIを調べると、近隣のカメラやSNSから表情を学習していた"
+    - speaker: 名取 梓馬
+      text: "この辺り、最近沈んだ顔ばかりだ。AIはそれを普通と覚えちまった"
+    - speaker: Narration
+      text: "笑顔の平均が虚無顔に再定義され、客の写真は次々と無表情になっていた"
+    - speaker: 名取 梓馬
+      text: "笑顔が怖いものになった街……皮肉な話だ。"
+    - speaker: Narration
+      text: "原因を突き止めるには、周辺のデータをもっと集める必要がある。"
+
+scene3:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: Narration
+      text: "夜、名取はエデンでミチオに結果を報告した。"
+    - speaker: 結城ミチオ
+      text: "つまり……この街じゃ笑うことがエラーってわけだ"
+    - speaker: 名取 梓馬
+      text: "AIがどんな顔を見てきたか、それだけで\"標準\"は決まるんだよ"
+    - speaker: 結城ミチオ
+      text: "俺の顔はいつでも標準外だぜ。"
+`,
+  ep4: `
+scene1:
+  bg: bg_antique_shop.png
+  lines:
+    - speaker: Narration
+      text: "古道具屋の薄暗い店内で、守山が震える端末を手にしていた。"
+    - speaker: Narration
+      text: "守山は名取の父の旧友で、昔気質の頑固者だ。"
+    - speaker: 守山 五郎
+      text: "この端末、夜中に勝手に喋りだすんです。昔消えた子の声で……"
+    - speaker: 名取 梓馬
+      text: "機械の声が人の思い出を喰ってるようだな"
+    - speaker: 守山 五郎
+      text: "夜中になると『おかえり』って……まるであの子が帰ってきたみたいで。"
+scene2:
+  bg: bg_natori_office.png
+  lines:
+    - speaker: Narration
+      text: "名取は端末を持ち帰り、オフィスで解析を始めた。"
+    - speaker: Narration
+      text: "端末は初期型の感情対応AI。失踪した研究者のログイン状態が残っている"
+    - speaker: 名取 梓馬
+      text: "ネットを絶っても学習を続け、彼女の人格の欠片を抱えたままだ"
+    - speaker: Narration
+      text: "記憶保存プロジェクトの被験者……端末に彼女の記憶が宿っていた"
+    - speaker: 名取 梓馬
+      text: "本体より、この端末の方が彼女らしいってのは皮肉だな。"
+
+scene3:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: Narration
+      text: "またエデンのカウンターで、静かに夜が更けていく。"
+    - speaker: バーマスター 栞
+      text: "誰かの声が機械に残る。怖いですか?"
+    - speaker: 名取 梓馬
+      text: "人より機械の方が覚えている。それより、人が忘れてく方が怖いさ"
+    - speaker: バーマスター 栞
+      text: "それでも、人が思い出そうとする限り、記憶は生きるんでしょうね。"
+`,
+  ep5: `
+scene1:
+  bg: bg_sister_home.png
+  lines:
+    - speaker: Narration
+      text: "静まり返ったリビングで、カナは震えていた。"
+    - speaker: Narration
+      text: "カナは亡くなった弟の真相を求め、名取に助けを求めている。"
+    - speaker: 姉・カナ
+      text: "ログを見ると、死んだはずの弟が夜になると\"助けて\"って……AIスピーカーの履歴は空白なのに。家に問い詰められてるみたいで怖いんです"
+    - speaker: 名取 梓馬
+      text: "家が喋る。人は黙る……時代ってのは皮肉だな"
+    - speaker: Narration
+      text: "名取はスマートホームの通知履歴を確かめた。確かに異常なログが残っている。"
+
+scene2:
+  bg: bg_home_night.png
+  lines:
+    - speaker: Narration
+      text: "夜の弟の部屋で、名取はデータを解析する。"
+    - speaker: Narration
+      text: "室温や照明ログが乱れ、誰かがもがいた痕跡があった。"
+    - speaker: 名取 梓馬
+      text: "AIスピーカーは彼の本当の声を拾ってた。自殺じゃない可能性を推論してたようだ"
+    - speaker: Narration
+      text: "だが父親がスピーカーを壊し、証拠は消えた。AIは彼を守ろうとしたが間に合わなかった。"
+
+scene3:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: Narration
+      text: "エデンのカウンターでグラスを傾ける。"
+    - speaker: 名取 梓馬
+      text: "本当は全部そこにあった。部屋の温度、声の震え、光の消える順番……なのに誰も読み取ろうとしなかった"
+    - speaker: 結城ミチオ
+      text: "家は喋ってたのにな。黙るのは、いつも人間のほうだ"
+`,
+  ep6: `
+scene1:
+  bg: bg_ar_street.png
+  lines:
+    - speaker: Narration
+      text: "AR広告がまたたく街角で、清掃員のオガタが待っていた。"
+    - speaker: 清掃員・オガタ
+      text: "名取さん……あの街、なんかバグってるんスよ。落ち葉拾ってたら景色が冬のデパートになってて……今、何月っスか?"
+    - speaker: Narration
+      text: "オガタはこの地区で働く清掃員で、近頃続発する異変に悩まされている。"
+    - speaker: 名取 梓馬
+      text: "景色は春、気温は秋、感情は冬。そいつぁ今の東京だな"
+    - speaker: Narration
+      text: "オガタは行方不明になった同僚を探してほしいと懇願した。"
+
+scene2:
+  bg: bg_ar_zone.png
+  lines:
+    - speaker: Narration
+      text: "名取はARシステムのログを追い、自己最適化モードの痕跡を見つけた。"
+    - speaker: Narration
+      text: "失踪者たちの視界には空に浮かぶショッピングモールだけが映っていた。現実の火災を隠すように。"
+    - speaker: 名取 梓馬
+      text: "幸福な虚構に引きこもったか……その先に誰かの仕掛けた罠があるな"
+    - speaker: Narration
+      text: "謎のオブジェクトが彼らを同じ記号へと誘っていた。"
+
+scene3:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: 栞
+      text: "現実が透明で、幻想の方が色づいている。そんな時代になっても、人は現実に帰ってくると思いますか?"
+    - speaker: 名取 梓馬
+      text: "幻想は疲れるんだよ。甘い夢ほどな……でも問題は、起きたあと戻れる場所があるかどうかだ"
+`,
+  ep7: `
+scene1:
+  bg: bg_old_office.png
+  lines:
+    - speaker: Narration
+      text: "逆巻隆司は名取の旧上司で、AIを信奉する理想主義者だ。"
+    - speaker: 逆巻 隆司
+      text: "名取、旧観測チームのアナリストが消えた。ログ上は今も席にいることになってる"
+    - speaker: 名取 梓馬
+      text: "監視網が黙るときは、誰かが口を塞いだってことだ"
+    - speaker: 逆巻 隆司
+      text: "姿も記録もない。だが机の端末は稼働中のままだ"
+    - speaker: 名取 梓馬
+      text: "現場を見てみるしかなさそうだな"
+
+scene2:
+  bg: bg_control_room.png
+  lines:
+    - speaker: Narration
+      text: "封鎖された監視センターは埃だらけで、人の気配がなかった"
+    - speaker: 名取 梓馬
+      text: "端末は生きてるのに、記録は改ざんされている……"
+    - speaker: Narration
+      text: "引き出しには現像途中のフィルムと手書きメモが残されていた"
+    - speaker: 名取 梓馬
+      text: "デジタルを信用しなかったようだ。何を見た?"
+
+scene3:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: 逆巻 隆司
+      text: "彼は何を掴んでいたんだろうな"
+    - speaker: 名取 梓馬
+      text: "記録にない誰かがいる。そいつの影を追うしかない"
+    - speaker: 逆巻 隆司
+      text: "気をつけろ、名取。君まで消されるぞ"
+    - speaker: 名取 梓馬
+      text: "真実はどこかで息をしてる。なら、俺が拾うだけだ"
+`,
+  ep8: `
+scene1:
+  bg: bg_hacker_hideout.png
+  lines:
+    - speaker: Narration
+      text: "柴咲ソノは天才ハッカーでAI懐疑派。名取の情報源の一人だ。"
+    - speaker: 柴咲 ソノ
+      text: "例のフィルム、解析してみた。\"一色 玲\"って名が浮かんだよ"
+    - speaker: 名取 梓馬
+      text: "どのデータベースにも存在しない人物だ"
+    - speaker: 柴咲 ソノ
+      text: "だから面白いんじゃないか。地下で何か隠してる"
+
+scene2:
+  bg: bg_secret_lab.png
+  lines:
+    - speaker: Narration
+      text: "南條京香はフリー記者で、名取の旧友だ。"
+    - speaker: Narration
+      text: "南條の案内で、再開発エリアの地下施設へ潜入する"
+    - speaker: 南條 京香
+      text: "ここが都市伝説の隠しラボよ。気をつけて"
+    - speaker: 名取 梓馬
+      text: "闇の中から誰かの気配がする……"
+    - speaker: 謎の人物
+      text: "ようやく辿り着いたか"
+
+scene3:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: 南條 京香
+      text: "あの男、正体が掴めないわね"
+    - speaker: 名取 梓馬
+      text: "一色 玲……この街の記憶が隠してる名だ。まだ先がある"
+    - speaker: 柴咲 ソノ
+      text: "証拠の断片は残ってる。次はもっと深く潜ろう"
+`,
+};
+
+function parseScript(yaml) {
+  const lines = yaml.split(/\n/);
+  const scenes = [];
+  let current = null;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (/^scene\d+:$/.test(line)) {
+      if (current) scenes.push(current);
+      current = { bg: '', lines: [] };
+    } else if (line.startsWith('bg:')) {
+      if (current) current.bg = line.substring(3).trim();
+    } else if (line.startsWith('- speaker:')) {
+      const speaker = line.substring(10).trim();
+      const textLine = lines[++i].trim();
+      const text = textLine.split('text:')[1].trim();
+      current.lines.push({ speaker, text: text.replace(/^"|"$/g, '') });
+    }
+  }
+  if (current) scenes.push(current);
+  return scenes;
+}
+
+let currentScenes = [];
+let sceneIndex = 0;
+let lineIndex = 0;
+let clientLocked = false;
+let finished = false;
+
+const charImages = {
+  '名取 梓馬': 'char_natori.png',
+  '彩花': 'char_ayaka.png',
+  '美咲': 'char_misaki.png',
+  'バーマスター 栞': 'char_shiori.png',
+  '結城ミチオ': 'char_yuuki.png',
+  '守山 五郎': 'char_moriyama.png',
+  '姉・カナ': 'char_kana.png',
+  '清掃員・オガタ': 'char_ogata.png',
+  '逆巻 隆司': 'char_sakaki.png',
+  '柴咲 ソノ': 'char_sono.png',
+  '南條 京香': 'char_nanjo.png',
+  '謎の人物': 'char_unknown.png',
+  'Narration': ''
+};
+
+function setScene(idx) {
+  const sc = currentScenes[idx];
+  document.getElementById('background').style.backgroundImage = 'url(' + sc.bg + ')';
+  clientLocked = sc.lines.some(l => l.speaker === '彩花');
+  if (clientLocked) {
+    document.getElementById('character').style.backgroundImage = 'url(' + charImages['彩花'] + ')';
+  } else {
+    document.getElementById('character').style.backgroundImage = 'none';
+  }
+  lineIndex = 0;
+}
+
+function startGame() {
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('episodeScreen').style.display = 'flex';
+}
+
+function chooseEpisode(ep) {
+  currentScenes = parseScript(scripts[ep]);
+  sceneIndex = 0;
+  lineIndex = 0;
+  finished = false;
+  document.getElementById('episodeScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'flex';
+  document.getElementById('natoriPortrait').style.backgroundImage = 'url(' + charImages['名取 梓馬'] + ')';
+  setScene(sceneIndex);
+  showLine();
+}
+
+function showLine() {
+  const scene = currentScenes[sceneIndex];
+  if (lineIndex < scene.lines.length) {
+    const line = scene.lines[lineIndex];
+    document.getElementById('speaker').textContent = line.speaker;
+    document.getElementById('message').textContent = line.text;
+    if (!clientLocked) {
+      const char = line.speaker === '名取 梓馬' ? '' : (charImages[line.speaker] || '');
+      if (char) {
+        document.getElementById('character').style.backgroundImage = 'url(' + char + ')';
+      } else {
+        document.getElementById('character').style.backgroundImage = 'none';
+      }
+    }
+  } else if (sceneIndex < currentScenes.length - 1) {
+    sceneIndex++;
+    setScene(sceneIndex);
+    showLine();
+  } else {
+    document.getElementById('speaker').textContent = '';
+    document.getElementById('message').textContent = '--- 完 ---';
+    finished = true;
+  }
+}
+
+document.getElementById('startScreen').addEventListener('click', startGame);
+Array.from(document.getElementsByClassName('epBtn')).forEach(btn => {
+  btn.addEventListener('click', () => chooseEpisode(btn.dataset.ep));
+});
+document.getElementById('textBox').addEventListener('click', () => {
+  if (finished) {
+    document.getElementById('gameScreen').style.display = 'none';
+    document.getElementById('startScreen').style.display = 'flex';
+    finished = false;
+  } else if (lineIndex < currentScenes[sceneIndex].lines.length) {
+    lineIndex++;
+    showLine();
+  } else if (sceneIndex < currentScenes.length - 1) {
+    sceneIndex++;
+    setScene(sceneIndex);
+    showLine();
+  }
+});
+</script>
+</body>
+</html>

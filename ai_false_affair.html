@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>浮気はAIの誤検知? - Episode 1</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: sans-serif;
+    }
+    #container {
+      max-width: 600px;
+      min-width: 360px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    #startScreen,
+    #gameScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      min-height: 100vh;
+    }
+    #startScreen {
+      cursor: pointer;
+    }
+    #background {
+      width: 100%;
+      height: 300px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+    #character {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 200px;
+      height: 350px;
+      transform: translate(-50%, 0);
+      background-size: contain;
+      background-repeat: no-repeat;
+      z-index: 1;
+    }
+    #textBox {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      border: 1px solid #888;
+      padding: 10px;
+      padding-right: 200px;
+      cursor: pointer;
+      min-height: 80px;
+      background: rgba(0,0,0,0.6);
+      z-index: 2;
+    }
+    #natoriPortrait {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      width: 180px;
+      height: 330px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      pointer-events: none;
+      z-index: 1;
+    }
+    #speaker {
+      font-weight: bold;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="startScreen">
+      <h1>浮気はAIの誤検知?</h1>
+      <p>クリックで開始</p>
+    </div>
+    <div id="gameScreen" style="display:none;">
+      <div id="background">
+        <div id="character"></div>
+        <div id="natoriPortrait"></div>
+      </div>
+      <div id="textBox">
+        <span id="speaker"></span>
+        <span id="message"></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const scriptYaml = `scene1:
+  bg: bg_rainy_city.png
+  lines:
+    - speaker: Narration
+      text: "霧雨の街。傘をさすほどでもない、でも、濡れるには十分な夜だった。"
+    - speaker: Narration
+      text: "人々はAIの指示に従い足早に駅へ向かう。俺だけが古いアパートの影で雨を見ている。"
+    - speaker: 名取 梓馬
+      text: "元観測員……今じゃただの探偵だ。"
+    - speaker: Narration
+      text: "かつては人の逸脱を数字で測り、記録だけを追っていた。"
+      - speaker: 名取 梓馬
+        text: "証言と感情。今の俺に必要なのはそれだけだ。"
+      - speaker: Narration
+        text: "遠くでサイレンが鳴り、雨の匂いがさらに強くなった。"
+      - speaker: 名取 梓馬
+        text: "この街に、まだ俺の仕事は残っているようだ。"
+
+scene2:
+  bg: bg_client_room.png
+  lines:
+    - speaker: Narration
+      text: "翌朝、彩花の住む高層マンションを訪れた。"
+    - speaker: 彩花
+      text: "夫のスケジュールは家庭連携AIが管理してます。なのに、このAIだけ私に\"言わない予定\"があるんです。"
+    - speaker: 名取 梓馬
+      text: "それで浮気を疑ったわけか。"
+    - speaker: 名取 梓馬
+      text: "彩花さん、旦那さんと最近会話は？"
+    - speaker: 彩花
+      text: "ほとんどありません。AI経由のメッセージばかりで……"
+    - speaker: 彩花
+      text: "この\"感情分析レポート\"では、夫が電話中に恋愛感情を示したと記録されていて……"
+    - speaker: 彩花
+      text: "さらに音声ログには若い女の声。けど、声紋認証では未登録者って。"
+    - speaker: 名取 梓馬
+      text: "あんたんとこのAI、家計簿まで見てるくせに情けは見逃すんだな。"
+      - speaker: 彩花
+        text: "お願いです、真実を知りたい。"
+      - speaker: 名取 梓馬
+        text: "わかった。俺が確かめてみよう。"
+      - speaker: Narration
+        text: "彼女は不安げにうつむき、AI端末を差し出した。"
+
+scene3:
+  bg: bg_natori_office.png
+  lines:
+    - speaker: Narration
+      text: "調査のため、古びたオフィスへ戻った。機材の埃を払いながら準備を始める。"
+    - speaker: Narration
+      text: "彩花が帰り、俺は旧型の手動型会話復元機を机に広げた。"
+    - speaker: 名取 梓馬
+      text: "彩花を巻き込みたくはないが、これ以上放っておけない。"
+    - speaker: 名取 梓馬
+      text: "こいつを使うのは久しぶりだな。"
+    - speaker: Narration
+      text: "波形データを照合すると、部分的に妙に滑らかな箇所がある。"
+    - speaker: 名取 梓馬
+      text: "人工的なノイズ除去……いや、違う、これは合成の痕跡か。"
+    - speaker: Narration
+      text: "旦那の声に生成AIのサンプルボイスを混ぜ、存在しない会話を作っている。"
+      - speaker: 名取 梓馬
+        text: "裏で何かの実験に利用されてやがるな。勤務先が怪しい。"
+      - speaker: 名取 梓馬
+        text: "これじゃ、AIが作った幻を真実と思い込むのも無理はない。"
+      - speaker: Narration
+        text: "夫の会社には、まだ見えない闇が潜んでいるようだ。"
+
+scene4:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: Narration
+      text: "手がかりを胸に、夜のBar『エデン』へ向かった。"
+    - speaker: Narration
+      text: "Bar『エデン』。ここだけは機械の目を気にせず呑める。"
+    - speaker: 名取 梓馬
+      text: "\"証拠\"ってのは機械が出したからって真実ってわけじゃねえ。"
+    - speaker: 名取 梓馬
+      text: "信じるやつがいれば、それは嘘だって殺し文句になる。"
+    - speaker: バーマスター 栞
+      text: "じゃあ、信じる人がいない真実ってのは、なんなんでしょうね。"
+      - speaker: 名取 梓馬
+        text: "それを探すのが俺の仕事だ。"
+      - speaker: 名取 梓馬
+        text: "……さて、次はどこから攻めるか。"`;
+
+  function parseScript(yaml) {
+    const lines = yaml.split(/\n/);
+    const scenes = [];
+    let current = null;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (/^scene\d+:$/.test(line)) {
+        if (current) scenes.push(current);
+        current = { bg: '', lines: [] };
+      } else if (line.startsWith('bg:')) {
+        if (current) current.bg = line.substring(3).trim();
+      } else if (line.startsWith('- speaker:')) {
+        const speaker = line.substring(10).trim();
+        const textLine = lines[++i].trim();
+        const text = textLine.split('text:')[1].trim();
+        current.lines.push({ speaker, text: text.replace(/^"|"$/g, '') });
+      }
+    }
+    if (current) scenes.push(current);
+    return scenes;
+  }
+
+  const scenes = parseScript(scriptYaml);
+  let sceneIndex = 0;
+  let lineIndex = 0;
+  let clientLocked = false;
+
+  const charImages = {
+    '名取 梓馬': 'char_natori.png',
+    '彩花': 'char_ayaka.png',
+    'バーマスター 栞': 'char_shiori.png',
+    'Narration': ''
+  };
+
+  function setScene(idx) {
+    const sc = scenes[idx];
+    document.getElementById('background').style.backgroundImage = 'url(' + sc.bg + ')';
+    clientLocked = sc.lines.some(l => l.speaker === '彩花');
+    if (clientLocked) {
+      document.getElementById('character').style.backgroundImage = 'url(' + charImages['彩花'] + ')';
+    } else {
+      document.getElementById('character').style.backgroundImage = 'none';
+    }
+    lineIndex = 0;
+  }
+
+  function startGame() {
+    document.getElementById('startScreen').style.display = 'none';
+    document.getElementById('gameScreen').style.display = 'flex';
+    document.getElementById('natoriPortrait').style.backgroundImage = 'url(' + charImages['名取 梓馬'] + ')';
+    setScene(sceneIndex);
+    showLine();
+  }
+
+  function showLine() {
+    const scene = scenes[sceneIndex];
+    if (lineIndex < scene.lines.length) {
+      const line = scene.lines[lineIndex];
+      document.getElementById('speaker').textContent = line.speaker;
+      document.getElementById('message').textContent = line.text;
+      if (!clientLocked) {
+        const char = line.speaker === '名取 梓馬' ? '' : (charImages[line.speaker] || '');
+        if (char) {
+          document.getElementById('character').style.backgroundImage = 'url(' + char + ')';
+        } else {
+          document.getElementById('character').style.backgroundImage = 'none';
+        }
+      }
+    } else if (sceneIndex < scenes.length - 1) {
+      sceneIndex++;
+      setScene(sceneIndex);
+      showLine();
+    } else {
+      document.getElementById('speaker').textContent = '';
+      document.getElementById('message').textContent = '--- 完 ---';
+    }
+  }
+
+  document.getElementById('startScreen').addEventListener('click', startGame);
+  document.getElementById('textBox').addEventListener('click', () => {
+    const scene = scenes[sceneIndex];
+    if (lineIndex < scene.lines.length) {
+      lineIndex++;
+      showLine();
+    } else if (sceneIndex < scenes.length - 1) {
+      sceneIndex++;
+      setScene(sceneIndex);
+      showLine();
+    }
+  });
+  </script>
+</body>
+</html>
