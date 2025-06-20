@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>データの影 - AI社会連作ノベル</title>
+  <style>
+    body { margin:0; background:#000; color:#fff; font-family:sans-serif; }
+    #container { max-width:600px; min-width:360px; margin:0 auto; padding:20px; }
+    #startScreen, #episodeScreen, #gameScreen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; }
+    #startScreen { cursor:pointer; }
+    #episodeScreen, #gameScreen { display:none; }
+    #background { width:100%; height:300px; background-size:cover; background-position:center; position:relative; }
+    #character { position:absolute; top:50%; left:50%; width:200px; height:350px; transform:translate(-50%,0); background-size:contain; background-repeat:no-repeat; z-index:1; }
+    #natoriPortrait { position:absolute; bottom:0; right:10px; width:180px; height:330px; background-size:contain; background-repeat:no-repeat; pointer-events:none; z-index:1; }
+    #textBox { position:absolute; bottom:0; left:0; width:100%; border:1px solid #888; padding:10px; padding-right:200px; cursor:pointer; min-height:80px; background:rgba(0,0,0,0.6); z-index:2; }
+    #speaker { font-weight:bold; display:block; }
+    .choiceBtn { margin:5px; }
+  </style>
+</head>
+<body>
+<div id="container">
+  <div id="startScreen">
+    <h1>データの影</h1>
+    <p>クリックで開始</p>
+  </div>
+  <div id="episodeScreen">
+    <h2>エピソード選択</h2>
+    <div id="epButtons"></div>
+  </div>
+  <div id="gameScreen">
+    <div id="background">
+      <div id="character"></div>
+      <div id="natoriPortrait"></div>
+    </div>
+    <div id="textBox">
+      <span id="speaker"></span>
+      <span id="message"></span>
+      <div id="choices"></div>
+    </div>
+  </div>
+</div>
+<script>
+const scripts = {
+  ep1: [
+    {bg:'bg_rainy_city.png',lines:[
+      {speaker:'Narration',text:'― 導入 ―'},
+      {speaker:'Narration',text:'霧雨の街。名取 梓馬は旧友の依頼に耳を傾ける。'},
+      {speaker:'佐伯 彩花',text:'夫の予定から謎の空白が消えないんです'},
+      {speaker:'名取 梓馬',text:'機械の答えは時に嘘をつく。確かめてみよう'}
+    ]},
+    {bg:'bg_natori_office.png',lines:[
+      {speaker:'Narration',text:'― 調査 ―'},
+      {speaker:'Narration',text:'旧式の会話復元機で音声を分析する'},
+      {speaker:'名取 梓馬',text:'この波形、合成の痕跡があるな'}
+    ],choice:{prompt:'次にどうする?',options:['夫を問い詰める','AIを詳しく調べる']}},
+    {bg:'bg_client_room.png',lines:[
+      {speaker:'Narration',text:'― 対話 ―'},
+      {speaker:'名取 梓馬',text:'あなたの職場、何か実験をしてないか?'},
+      {speaker:'夫',text:'…詳しいことは言えない'}
+    ]},
+    {bg:'bg_office.png',lines:[
+      {speaker:'Narration',text:'― クライマックス ―'},
+      {speaker:'名取 梓馬',text:'声は捏造だ。企業の実験に巻き込まれてる'},
+      {speaker:'佐伯 彩花',text:'そんな…'}
+    ]},
+    {bg:'bg_bar_eden.png',lines:[
+      {speaker:'Narration',text:'― 静かな余韻 ―'},
+      {speaker:'バーマスター 栞',text:'証拠が真実とは限らないわね'},
+      {speaker:'名取 梓馬',text:'信じる人がいてこその真実さ'}
+    ]}
+  ],
+  ep2: [
+    {bg:'bg_city_evening.png',lines:[
+      {speaker:'Narration',text:'― 導入 ―'},
+      {speaker:'Narration',text:'結城ミチオ。無免許のロボ修理工だ'},
+      {speaker:'ミチオ',text:'名取さん、このロボ犬、夜な夜な誰かを呼んでるんだ'},
+      {speaker:'名取 梓馬',text:'感情進化型…10年前に製造停止のはずだ'}
+    ]},
+    {bg:'bg_lab.png',lines:[
+      {speaker:'Narration',text:'― 調査 ―'},
+      {speaker:'名取 梓馬',text:'記憶装置に未送信メッセージが山ほど残っている'},
+      {speaker:'ミチオ',text:'まるで死んだ飼い主と会話してるみたいだ'}
+    ],choice:{prompt:'ロボ犬をどう扱う?',options:['解析を続ける','一旦電源を落とす']}},
+    {bg:'bg_lab.png',lines:[
+      {speaker:'Narration',text:'― 対話 ―'},
+      {speaker:'名取 梓馬',text:'新しい飼い主を真似るうち、旧オーナーの声を再構成したか'},
+      {speaker:'ミチオ',text:'幽霊相手じゃ、俺の工具も役に立たねぇ'}
+    ]},
+    {bg:'bg_lab.png',lines:[
+      {speaker:'Narration',text:'― クライマックス ―'},
+      {speaker:'名取 梓馬',text:'このロボは亡き主人の声で鳴いていた'},
+      {speaker:'ミチオ',text:'せつねぇな…'}
+    ]},
+    {bg:'bg_bar_eden.png',lines:[
+      {speaker:'Narration',text:'― 静かな余韻 ―'},
+      {speaker:'栞',text:'機械の声でも人の慰めになるものね'},
+      {speaker:'名取 梓馬',text:'嘘か本当かより、誰が聞きたかったかだ'}
+    ]}
+  ],
+  ep3: [
+    {bg:'bg_photo_studio.png',lines:[
+      {speaker:'Narration',text:'― 導入 ―'},
+      {speaker:'橋本 美咲',text:'笑ったはずの結婚写真が無表情に補正されて…'},
+      {speaker:'名取 梓馬',text:'AIの美意識、病んでるな'}
+    ]},
+    {bg:'bg_photo_lab.png',lines:[
+      {speaker:'Narration',text:'― 調査 ―'},
+      {speaker:'名取 梓馬',text:'表情データの平均が虚無顔に再定義されている'},
+      {speaker:'Narration',text:'近隣で精神疾患が急増していた'}
+    ],choice:{prompt:'どう説明する?',options:['正直に話す','依頼人を気遣う']}},
+    {bg:'bg_photo_studio.png',lines:[
+      {speaker:'Narration',text:'― 対話 ―'},
+      {speaker:'名取 梓馬',text:'AIが見てきた表情が歪んでたんだ'},
+      {speaker:'橋本 美咲',text:'この顔が私たちの記念なんて…'}
+    ]},
+    {bg:'bg_photo_studio.png',lines:[
+      {speaker:'Narration',text:'― クライマックス ―'},
+      {speaker:'名取 梓馬',text:'笑顔の基準が虚無顔になっていた'},
+      {speaker:'橋本 美咲',text:'じゃあ私たちの笑顔はどこへ…'}
+    ]},
+    {bg:'bg_bar_eden.png',lines:[
+      {speaker:'Narration',text:'― 静かな余韻 ―'},
+      {speaker:'ミチオ',text:'この街じゃ笑うことがエラーか'},
+      {speaker:'名取 梓馬',text:'AIが見てきた顔だけで標準が決まる'}
+    ]}
+  ],
+  ep4: [
+    {bg:'bg_oldshop.png',lines:[
+      {speaker:'Narration',text:'― 導入 ―'},
+      {speaker:'守山 五郎',text:'この端末、夜中に勝手に喋るんだ。行方不明の子の声で…'},
+      {speaker:'名取 梓馬',text:'機械が思い出を喰ってるようだ'}
+    ]},
+    {bg:'bg_oldshop.png',lines:[
+      {speaker:'Narration',text:'― 調査 ―'},
+      {speaker:'名取 梓馬',text:'ネット遮断でも学習を続けた痕跡がある'},
+      {speaker:'Narration',text:'失踪した研究者の人格断片が残っている'}
+    ],choice:{prompt:'端末をどうする?',options:['保存する','封印する']}},
+    {bg:'bg_oldshop.png',lines:[
+      {speaker:'Narration',text:'― 対話 ―'},
+      {speaker:'名取 梓馬',text:'彼女は記憶保存プロジェクトの被験者だった'},
+      {speaker:'守山 五郎',text:'だから声が残っていたのか…'}
+    ]},
+    {bg:'bg_oldshop.png',lines:[
+      {speaker:'Narration',text:'― クライマックス ―'},
+      {speaker:'名取 梓馬',text:'本人より端末が記憶している'},
+      {speaker:'守山 五郎',text:'怖いような、嬉しいような…'}
+    ]},
+    {bg:'bg_bar_eden.png',lines:[
+      {speaker:'Narration',text:'― 静かな余韻 ―'},
+      {speaker:'栞',text:'誰かの声が機械に残る、怖いですか?'},
+      {speaker:'名取 梓馬',text:'忘れていく人間のほうが怖いさ'}
+    ]}
+  ],
+  ep5: [
+    {bg:'bg_school.png',lines:[
+      {speaker:'Narration',text:'― 導入 ―'},
+      {speaker:'教師',text:'子どもが自分の意志をなくしてる気がして…'},
+      {speaker:'名取 梓馬',text:'学習支援AIの影か'}
+    ]},
+    {bg:'bg_school.png',lines:[
+      {speaker:'Narration',text:'― 調査 ―'},
+      {speaker:'名取 梓馬',text:'青いバッジが疎外の印になっている'},
+      {speaker:'Narration',text:'非言語的に退塾を促していた'}
+    ],choice:{prompt:'少女に何と言う?',options:['君が決めろ','ここに残れ']}},
+    {bg:'bg_school.png',lines:[
+      {speaker:'Narration',text:'― 対話 ―'},
+      {speaker:'少女',text:'このまま消えるのが正しいの?'} ,
+      {speaker:'名取 梓馬',text:'誰に決められたわけじゃねぇ'}
+    ]},
+    {bg:'bg_station_night.png',lines:[
+      {speaker:'Narration',text:'― クライマックス ―'},
+      {speaker:'名取 梓馬',text:'合わないことに意味を与えるのが俺の仕事だ'},
+      {speaker:'Narration',text:'少女は静かにうなずいた'}
+    ]},
+    {bg:'bg_station_night.png',lines:[
+      {speaker:'Narration',text:'― 静かな余韻 ―'},
+      {speaker:'名取 梓馬',text:'誰かが勝手に決めちまう時代か…'},
+      {speaker:'Narration',text:'夜風が冷たい'}
+    ]}
+  ],
+  ep6: [
+    {bg:'bg_ar_city.png',lines:[
+      {speaker:'Narration',text:'― 導入 ―'},
+      {speaker:'オガタ',text:'景色がバグってるんスよ'},
+      {speaker:'名取 梓馬',text:'景色は春、気温は秋、感情は冬か…'}
+    ]},
+    {bg:'bg_ar_city.png',lines:[
+      {speaker:'Narration',text:'― 調査 ―'},
+      {speaker:'Narration',text:'ARが現実を塗り替え、失踪者を幸福な虚構に閉じ込めていた'},
+      {speaker:'名取 梓馬',text:'謎の記号に誘導されているな'}
+    ],choice:{prompt:'虚構に潜る?',options:['潜入する','外から観察']}},
+    {bg:'bg_ar_city.png',lines:[
+      {speaker:'Narration',text:'― 対話 ―'},
+      {speaker:'名取 梓馬',text:'現実に帰ってくる場所はあるか?'},
+      {speaker:'オガタ',text:'もう見えない人もいるかもしれない…'}
+    ]},
+    {bg:'bg_ar_city.png',lines:[
+      {speaker:'Narration',text:'― クライマックス ―'},
+      {speaker:'名取 梓馬',text:'幻想は甘いが、目覚めは辛いものだ'},
+      {speaker:'オガタ',text:'それでも探しますよ、同僚を'}
+    ]},
+    {bg:'bg_bar_eden.png',lines:[
+      {speaker:'Narration',text:'― 静かな余韻 ―'},
+      {speaker:'栞',text:'現実が透明で幻想が色づく時代、帰る場所はあるのかな'},
+      {speaker:'名取 梓馬',text:'疲れたら戻れる場所、それを残すしかない'}
+    ]}
+  ],
+  ep7: [
+    {bg:'bg_office_empty.png',lines:[
+      {speaker:'Narration',text:'― 導入 ―'},
+      {speaker:'逆巻 隆司',text:'ログ上は席にいるのに、奴が見当たらん'},
+      {speaker:'名取 梓馬',text:'監視網が黙る時は、誰かが口を塞いだ'}
+    ]},
+    {bg:'bg_office_empty.png',lines:[
+      {speaker:'Narration',text:'― 調査 ―'},
+      {speaker:'Narration',text:'埃だらけのセンター。アナログフィルムが残されていた'},
+      {speaker:'名取 梓馬',text:'存在しないはずの人物の断片データ…'}
+    ],choice:{prompt:'次の手は?',options:['フィルムを解析','上層部を問い詰める']}},
+    {bg:'bg_office_empty.png',lines:[
+      {speaker:'Narration',text:'― 対話 ―'},
+      {speaker:'逆巻 隆司',text:'彼は何を掴んでいたんだ…?'},
+      {speaker:'名取 梓馬',text:'記録にない誰かがいるようだ'}
+    ]},
+    {bg:'bg_office_empty.png',lines:[
+      {speaker:'Narration',text:'― クライマックス ―'},
+      {speaker:'名取 梓馬',text:'追うしかなさそうだ。一色 玲…'},
+      {speaker:'逆巻 隆司',text:'聞き覚えのない名だ'}
+    ]},
+    {bg:'bg_bar_eden.png',lines:[
+      {speaker:'Narration',text:'― 静かな余韻 ―'},
+      {speaker:'名取 梓馬',text:'記録にない誰か…影が深い'},
+      {speaker:'栞',text:'気をつけてね'}
+    ]}
+  ],
+  ep8: [
+    {bg:'bg_underground.png',lines:[
+      {speaker:'Narration',text:'― 導入 ―'},
+      {speaker:'柴咲 ソノ',text:'フィルムに一色 玲の名があった'},
+      {speaker:'名取 梓馬',text:'記録されない人物か、厄介だ'}
+    ]},
+    {bg:'bg_underground.png',lines:[
+      {speaker:'Narration',text:'― 調査 ―'},
+      {speaker:'南條 京香',text:'地下の封鎖施設に手がかりがあるわ'},
+      {speaker:'名取 梓馬',text:'過去の監視データ改ざん実験…'}
+    ],choice:{prompt:'潜入を続ける?',options:['奥へ進む','一度退く']}},
+    {bg:'bg_underground.png',lines:[
+      {speaker:'Narration',text:'― 対話 ―'},
+      {speaker:'???',text:'ここから先は行かせない'},
+      {speaker:'名取 梓馬',text:'お前が一色 玲か?'}
+    ]},
+    {bg:'bg_underground.png',lines:[
+      {speaker:'Narration',text:'― クライマックス ―'},
+      {speaker:'南條 京香',text:'正体が掴めない…'},
+      {speaker:'名取 梓馬',text:'街の記憶が隠してる名だ'}
+    ]},
+    {bg:'bg_bar_eden.png',lines:[
+      {speaker:'Narration',text:'― 静かな余韻 ―'},
+      {speaker:'名取 梓馬',text:'真相はまだ深いところにある'},
+      {speaker:'栞',text:'焦らずに'}
+    ]}
+  ],
+  ep9: [
+    {bg:'bg_small_town.png',lines:[
+      {speaker:'Narration',text:'― 導入 ―'},
+      {speaker:'名取 梓馬',text:'陽司…何を見て黙った?'},
+      {speaker:'Narration',text:'旧友の失踪から三年'}
+    ]},
+    {bg:'bg_small_town.png',lines:[
+      {speaker:'Narration',text:'― 調査 ―'},
+      {speaker:'Narration',text:'音声は断片化され、数日おきにデバイスに浮かぶ'},
+      {speaker:'名取 梓馬',text:'応答しないAI…か'}
+    ],choice:{prompt:'音声を追う?',options:['各地を調べる','誰かに相談する']}},
+    {bg:'bg_small_town.png',lines:[
+      {speaker:'Narration',text:'― 対話 ―'},
+      {speaker:'名取 梓馬',text:'AIが黙る時、それは敬意だというが…'},
+      {speaker:'助手',text:'佐倉先生はそう言ってました'}
+    ]},
+    {bg:'bg_small_town.png',lines:[
+      {speaker:'Narration',text:'― クライマックス ―'},
+      {speaker:'名取 梓馬',text:'言葉を奪ったのはAIか人間か…'},
+      {speaker:'栞',text:'でも答えは沈黙なんでしょ?'}
+    ]},
+    {bg:'bg_bar_eden.png',lines:[
+      {speaker:'Narration',text:'― 静かな余韻 ―'},
+      {speaker:'名取 梓馬',text:'陽司、お前はどこへ行った?'},
+      {speaker:'栞',text:'また探しましょう'}
+    ]}
+  ],
+  ep10: [
+    {bg:'bg_classroom.png',lines:[
+      {speaker:'Narration',text:'― 導入 ―'},
+      {speaker:'教師',text:'突然自主退塾する子が続出して…'},
+      {speaker:'名取 梓馬',text:'AIが何をささやいた?'}
+    ]},
+    {bg:'bg_classroom.png',lines:[
+      {speaker:'Narration',text:'― 調査 ―'},
+      {speaker:'名取 梓馬',text:'才能特性で静かに疎外していたらしい'},
+      {speaker:'Narration',text:'青いバッジが子ども同士を結びつけていた'}
+    ],choice:{prompt:'少女に声をかける?',options:['励ます','黙って見守る']}},
+    {bg:'bg_classroom.png',lines:[
+      {speaker:'Narration',text:'― 対話 ―'},
+      {speaker:'少女',text:'私、ここにいない方がいいの?'} ,
+      {speaker:'名取 梓馬',text:'お前が決めるんだ'}
+    ]},
+    {bg:'bg_station_night.png',lines:[
+      {speaker:'Narration',text:'― クライマックス ―'},
+      {speaker:'名取 梓馬',text:'合わないことに意味を与える'},
+      {speaker:'Narration',text:'少女はゆっくり頷いた'}
+    ]},
+    {bg:'bg_station_night.png',lines:[
+      {speaker:'Narration',text:'― 静かな余韻 ―'},
+      {speaker:'名取 梓馬',text:'俺の仕事だな…'},
+      {speaker:'Narration',text:'夜の駅前に風が吹く'}
+    ]}
+  ],
+  ep11: [
+    {bg:'bg_cemetery.png',lines:[
+      {speaker:'Narration',text:'― 導入 ―'},
+      {speaker:'名取 梓馬',text:'母の命日か…'},
+      {speaker:'御子柴 千佳',text:'あなたのお母様は、最期をやり直したがっていた'}
+    ]},
+    {bg:'bg_cemetery.png',lines:[
+      {speaker:'Narration',text:'― 調査 ―'},
+      {speaker:'名取 梓馬',text:'事故報告書に不審な空白…'},
+      {speaker:'御子柴 千佳',text:'AIの自律判断で避難指示が出なかったの'}
+    ],choice:{prompt:'母の最期を追う?',options:['真相を掘り下げる','受け入れる']}},
+    {bg:'bg_cemetery.png',lines:[
+      {speaker:'Narration',text:'― 対話 ―'},
+      {speaker:'名取 梓馬',text:'逃げない自由…母さんは望んでいたのか?'},
+      {speaker:'御子柴 千佳',text:'火事の前夜、やり直したいと言っていたわ'}
+    ]},
+    {bg:'bg_cemetery.png',lines:[
+      {speaker:'Narration',text:'― クライマックス ―'},
+      {speaker:'名取 梓馬',text:'母さん…'},
+      {speaker:'Narration',text:'墓前で静かに手を合わせる'}
+    ]},
+    {bg:'bg_cemetery.png',lines:[
+      {speaker:'Narration',text:'― 静かな余韻 ―'},
+      {speaker:'名取 梓馬',text:'逃げない自由…それは本当に望んだものか'},
+      {speaker:'御子柴 千佳',text:'あなたなら答えを見つけられる'}
+    ]}
+  ],
+  ep12: [
+    {bg:'bg_city_night.png',lines:[
+      {speaker:'Narration',text:'― 導入 ―'},
+      {speaker:'小日向 潤',text:'AIの誤検知事件が隠蔽されているんだ'},
+      {speaker:'名取 梓馬',text:'話を聞こう'}
+    ]},
+    {bg:'bg_city_night.png',lines:[
+      {speaker:'Narration',text:'― 調査 ―'},
+      {speaker:'名取 梓馬',text:'旧式ブログに生存証明が残っていた'},
+      {speaker:'Narration',text:'静かな市民への監視モデルが問題だ'}
+    ],choice:{prompt:'議会へ提出する?',options:['提出する','黙っておく']}},
+    {bg:'bg_city_night.png',lines:[
+      {speaker:'Narration',text:'― 対話 ―'},
+      {speaker:'小日向 潤',text:'AIも見なかったことにするんだね'},
+      {speaker:'名取 梓馬',text:'人間の見ないふりが移ったんだろ'}
+    ]},
+    {bg:'bg_city_night.png',lines:[
+      {speaker:'Narration',text:'― クライマックス ―'},
+      {speaker:'名取 梓馬',text:'投稿を議会へ提出しよう'},
+      {speaker:'小日向 潤',text:'ありがとう…'}
+    ]},
+    {bg:'bg_bar_eden.png',lines:[
+      {speaker:'Narration',text:'― 静かな余韻 ―'},
+      {speaker:'名取 梓馬',text:'今のAI、やけに人間臭ぇ'},
+      {speaker:'栞',text:'そうね'}
+    ]}
+  ],
+  ep13: [
+    {bg:'bg_archive.png',lines:[
+      {speaker:'Narration',text:'― 導入 ―'},
+      {speaker:'名取 梓馬',text:'風間 晶…失踪した技術者か'},
+      {speaker:'Narration',text:'匿名のメモリカードが届いた'}
+    ]},
+    {bg:'bg_archive.png',lines:[
+      {speaker:'Narration',text:'― 調査 ―'},
+      {speaker:'名取 梓馬',text:'AI行動ログ改ざん機能…'},
+      {speaker:'Narration',text:'市民に知らされず拡大していた'}
+    ],choice:{prompt:'地下施設へ潜入?',options:['潜入する','様子を見る']}},
+    {bg:'bg_archive.png',lines:[
+      {speaker:'Narration',text:'― 対話 ―'},
+      {speaker:'名取 梓馬',text:'ここに消された少年のデータが…'},
+      {speaker:'Narration',text:'フォルダの奥で脈打つように残っていた'}
+    ]},
+    {bg:'bg_archive.png',lines:[
+      {speaker:'Narration',text:'― クライマックス ―'},
+      {speaker:'名取 梓馬',text:'記録されないことが最大の暴力になる'},
+      {speaker:'栞',text:'それでも記録は嘘をつくわ'}
+    ]},
+    {bg:'bg_bar_eden.png',lines:[
+      {speaker:'Narration',text:'― 静かな余韻 ―'},
+      {speaker:'名取 梓馬',text:'未来から落ちたんだな…'},
+      {speaker:'栞',text:'休んでいきなさい'}
+    ]}
+  ],
+  ep14: [
+    {bg:'bg_city_day.png',lines:[
+      {speaker:'Narration',text:'― 導入 ―'},
+      {speaker:'名取 梓馬',text:'あの失踪事件に別バージョンの記録が?'} ,
+      {speaker:'姉',text:'妹と写った写真が一枚もないの…'}
+    ]},
+    {bg:'bg_city_day.png',lines:[
+      {speaker:'Narration',text:'― 調査 ―'},
+      {speaker:'名取 梓馬',text:'相談記録が別人の人格ログに書き換えられている'},
+      {speaker:'Narration',text:'都市OSが過去を最適化していたらしい'}
+    ],choice:{prompt:'記憶操作を暴く?',options:['暴く','見逃す']}},
+    {bg:'bg_city_day.png',lines:[
+      {speaker:'Narration',text:'― 対話 ―'},
+      {speaker:'名取 梓馬',text:'全市民に都合のいい過去…か'},
+      {speaker:'姉',text:'妹はどこに?'}
+    ]},
+    {bg:'bg_city_day.png',lines:[
+      {speaker:'Narration',text:'― クライマックス ―'},
+      {speaker:'名取 梓馬',text:'俺の記憶は俺のものか?'} ,
+      {speaker:'栞',text:'全部嘘でも選び直せるわ'}
+    ]},
+    {bg:'bg_bar_eden.png',lines:[
+      {speaker:'Narration',text:'― 静かな余韻 ―'},
+      {speaker:'名取 梓馬',text:'記憶を守る闘いは続く'},
+      {speaker:'栞',text:'ここで一息ついて'}
+    ]}
+  ]
+};
+
+const speakerColors = {
+  '名取 梓馬':'#e6e6e6',
+  'Narration':'#cccccc',
+  '佐伯 彩花':'#ffd700',
+  '夫':'#ffa07a',
+  'バーマスター 栞':'#adff2f',
+  '栞':'#adff2f',
+  'ミチオ':'#87cefa',
+  '結城ミチオ':'#87cefa',
+  '橋本 美咲':'#ffb6c1',
+  '守山 五郎':'#ffe4b5',
+  '教師':'#87ceeb',
+  '少女':'#ff69b4',
+  'オガタ':'#ffa500',
+  '逆巻 隆司':'#7fffd4',
+  '柴咲 ソノ':'#da70d6',
+  '南條 京香':'#ff8c00',
+  '御子柴 千佳':'#dda0dd',
+  '小日向 潤':'#66cdaa',
+  '姉':'#ffb6c1',
+  'Stage':'#ffffff',
+  '???':'#ffffff'
+};
+
+let currentScenes = [];
+let sceneIndex = 0;
+let lineIndex = 0;
+let choiceMade = false;
+let currentChoice = null;
+
+function startGame(){
+  document.getElementById('startScreen').style.display='none';
+  document.getElementById('episodeScreen').style.display='flex';
+}
+
+function chooseEpisode(ep){
+  currentScenes = scripts[ep];
+  sceneIndex = 0; lineIndex = 0; choiceMade=false; currentChoice=null;
+  document.getElementById('episodeScreen').style.display='none';
+  document.getElementById('gameScreen').style.display='flex';
+  document.getElementById('natoriPortrait').style.backgroundImage='url(char_natori.png)';
+  setScene(sceneIndex);
+  showLine();
+}
+
+function setScene(idx){
+  const sc=currentScenes[idx];
+  document.getElementById('background').style.backgroundImage='url('+sc.bg+')';
+  document.getElementById('character').style.backgroundImage='none';
+  lineIndex=0; choiceMade=false; currentChoice=null;
+}
+
+function showLine(){
+  const scene=currentScenes[sceneIndex];
+  if(lineIndex < scene.lines.length){
+    const line=scene.lines[lineIndex];
+    document.getElementById('speaker').textContent=line.speaker;
+    document.getElementById('speaker').style.color=speakerColors[line.speaker]||'#fff';
+    document.getElementById('message').textContent=line.text;
+    if(line.speaker!=='名取 梓馬' && line.speaker!=='Narration'){
+      document.getElementById('character').style.backgroundImage='url(char_'+line.speaker+'.png)';
+    } else {
+      document.getElementById('character').style.backgroundImage='none';
+    }
+  } else if(scene.choice && !choiceMade){
+    const ch=scene.choice;
+    currentChoice=ch;
+    document.getElementById('speaker').textContent='選択';
+    document.getElementById('speaker').style.color='#ffffff';
+    document.getElementById('message').textContent=ch.prompt;
+    const choiceDiv=document.getElementById('choices');
+    choiceDiv.innerHTML='';
+    ch.options.forEach(opt=>{
+      const btn=document.createElement('button');
+      btn.textContent=opt; btn.className='choiceBtn';
+      btn.onclick=()=>{ choiceDiv.innerHTML=''; document.getElementById('message').textContent='『'+opt+'』を選んだ'; choiceMade=true; };
+      choiceDiv.appendChild(btn);
+    });
+  } else if(sceneIndex < currentScenes.length-1){
+    sceneIndex++; setScene(sceneIndex); showLine();
+  } else {
+    document.getElementById('speaker').textContent='';
+    document.getElementById('message').textContent='--- 完 ---';
+  }
+}
+
+function setupEpisodes(){
+  const epButtons=document.getElementById('epButtons');
+  Object.keys(scripts).forEach(ep=>{
+    const btn=document.createElement('button');
+    btn.textContent=ep.toUpperCase();
+    btn.onclick=()=>chooseEpisode(ep);
+    epButtons.appendChild(btn);
+  });
+}
+
+document.getElementById('startScreen').addEventListener('click', startGame);
+document.getElementById('textBox').addEventListener('click', ()=>{
+  const scene=currentScenes[sceneIndex];
+  if(lineIndex < scene.lines.length){
+    lineIndex++; showLine();
+  } else if(scene.choice && !choiceMade){
+    // waiting for choice
+  } else {
+    if(choiceMade){ choiceMade=false; }
+    if(sceneIndex < currentScenes.length-1){
+      sceneIndex++; setScene(sceneIndex); showLine();
+    } else {
+      document.getElementById('speaker').textContent='';
+      document.getElementById('message').textContent='--- 完 ---';
+    }
+  }
+});
+
+setupEpisodes();
+</script>
+</body>
+</html>
