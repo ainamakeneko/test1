@@ -1,0 +1,21 @@
+{
+  "scenes": [
+    {
+      "bg": "../assets/backgrounds/bg_office.jpg",
+      "character": "../assets/characters/natori.png",
+      "lines": [
+        {"speaker": "名取 梓馬", "text": "調査を始めるぞ。"},
+        {"speaker": "依頼人", "text": "夫の浮気を調べてください。"},
+        {"speaker": "名取 梓馬", "text": "AIの記録だけでは真実は見えない。"}
+      ]
+    },
+    {
+      "bg": "../assets/backgrounds/bg_bar.jpg",
+      "character": "../assets/characters/shiori.png",
+      "lines": [
+        {"speaker": "栞", "text": "ここがBarエデンよ。"},
+        {"speaker": "名取 梓馬", "text": "この街はAIに頼りすぎだな。"}
+      ]
+    }
+  ]
+}
