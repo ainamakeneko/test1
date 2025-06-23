@@ -11,8 +11,8 @@
       font-family: "Courier New", monospace;
     }
     #container {
-      max-width: 640px;
-      min-width: 360px;
+      max-width: 800px;
+      min-width: 480px;
       margin: 0 auto;
       padding: 20px;
     }
@@ -35,11 +35,11 @@
     }
     #character {
       position: absolute;
-      top: 50%;
+      bottom: 0;
       left: 50%;
       width: 200px;
       height: 350px;
-      transform: translate(-50%, 0);
+      transform: translateX(-50%);
       background-size: contain;
       background-repeat: no-repeat;
       z-index: 1;
@@ -59,7 +59,7 @@
     }
     #natoriPortrait {
       position: absolute;
-      top: 50%;
+      bottom: 0;
       right: 10px;
       width: 180px;
       height: 330px;
