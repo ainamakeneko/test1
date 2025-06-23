@@ -11,7 +11,19 @@
     #episodeScreen, #gameScreen { display:none; }
     #background { width:100%; height:300px; background-size:cover; background-position:center; position:relative; }
     #character { position:absolute; top:50%; left:50%; width:200px; height:350px; transform:translate(-50%,0); background-size:contain; background-repeat:no-repeat; z-index:1; }
-    #natoriPortrait { position:absolute; bottom:-40px; right:10px; width:180px; height:330px; background-size:contain; background-repeat:no-repeat; pointer-events:none; z-index:1; }
+    #natoriPortrait {
+      position:absolute;
+      right:5%;
+      bottom:0;
+      height:380px;
+      width:180px;
+      background-size:contain;
+      background-repeat:no-repeat;
+      pointer-events:none;
+      z-index:1;
+      transition:transform 0.3s, filter 0.3s;
+    }
+    #natoriPortrait.speaking { transform:scale(1.05); filter:brightness(1.15); }
     #textBox { position:absolute; bottom:0; left:0; width:100%; border:1px solid #888; padding:10px; padding-right:200px; cursor:pointer; min-height:80px; background:rgba(0,0,0,0.6); z-index:2; }
     #speaker { font-weight:bold; display:block; }
     .choiceBtn { margin:5px; }
@@ -488,9 +500,15 @@ function showLine(){
   const scene=currentScenes[sceneIndex];
   if(lineIndex < scene.lines.length){
     const line=scene.lines[lineIndex];
+    const natori=document.getElementById('natoriPortrait');
     document.getElementById('speaker').textContent=line.speaker;
     document.getElementById('speaker').style.color=speakerColors[line.speaker]||'#fff';
     document.getElementById('message').textContent=line.text;
+    if(line.speaker==='名取 梓馬'){
+      natori.classList.add('speaking');
+    } else {
+      natori.classList.remove('speaking');
+    }
     if(line.speaker!=='名取 梓馬' && line.speaker!=='Narration'){
       document.getElementById('character').style.backgroundImage='url(char_'+line.speaker+'.png)';
     } else {
