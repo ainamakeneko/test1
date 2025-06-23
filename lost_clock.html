@@ -59,7 +59,7 @@
     }
     #natoriPortrait {
       position: absolute;
-      top: 50%;
+      bottom: 0;
       right: 10px;
       width: 180px;
       height: 330px;
@@ -101,6 +101,8 @@
 scene2:
   bg: bg_saeki_room.png
   lines:
+    - speaker: 名取（モノローグ）
+      text: "依頼人の家、佐伯邸リビングへと向かった。"
     - speaker: 彩花
       text: "この音声、夫と……女の子の会話なんです。でも、声紋は“未登録者”って。AIが“適切なラベルがない”って言うんです"
     - speaker: 名取
@@ -108,6 +110,8 @@ scene2:
 scene3:
   bg: bg_natori_office.png
   lines:
+    - speaker: 名取（モノローグ）
+      text: "佐伯邸を後にし、自分の事務所へ戻った。"
     - speaker: 名取
       text: "波形が……滑らかすぎる。呼吸の隙がない。まるで……ノイズ除去された合成音"
     - speaker: 名取（モノローグ）
@@ -115,6 +119,8 @@ scene3:
 scene4:
   bg: bg_company.png
   lines:
+    - speaker: 名取（モノローグ）
+      text: "手がかりを求めてAI開発会社へ向かった。"
     - speaker: 若手社員
       text: "あの音声記録は……本来、社外に出るはずでは……いえ、実験段階のアルゴリズムが……"
     - speaker: 名取（声を低く）
@@ -126,6 +132,8 @@ scene4:
 scene5:
   bg: bg_saeki_night.png
   lines:
+    - speaker: 名取（モノローグ）
+      text: "夜になり、再び佐伯家を訪れた。"
     - speaker: 俊明
       text: "……本当に、浮気なんてしてない。だけど、俺の声が女と喋ってたって……俺も、どう信じていいか……"
     - speaker: 彩花（震えながら）
@@ -135,6 +143,8 @@ scene5:
 scene6:
   bg: bg_bar_eden.png
   lines:
+    - speaker: 名取（モノローグ）
+      text: "事件の後、俺はバー『エデン』に立ち寄った。"
     - speaker: 栞
       text: "“音声”が嘘をつく時代なんて……皮肉ですね"
     - speaker: 名取
@@ -187,6 +197,7 @@ scene6:
     const sc = scenes[idx];
     document.getElementById('background').style.backgroundImage = 'url(' + sc.bg + ')';
     lineIndex = 0;
+    document.getElementById('character').style.backgroundImage = 'none';
   }
 
   function startGame() {
@@ -203,10 +214,12 @@ scene6:
       const line = scene.lines[lineIndex];
       document.getElementById('speaker').textContent = line.speaker;
       document.getElementById('message').textContent = line.text;
-      const char = line.speaker.startsWith('名取') ? '' : (charImages[line.speaker] || '');
-      if (char) {
-        document.getElementById('character').style.backgroundImage = 'url(' + char + ')';
-      } else {
+      if (!line.speaker.startsWith('名取')) {
+        const char = charImages[line.speaker] || '';
+        if (char) {
+          document.getElementById('character').style.backgroundImage = 'url(' + char + ')';
+        }
+      } else if (lineIndex === 0) {
         document.getElementById('character').style.backgroundImage = 'none';
       }
     } else if (sceneIndex < scenes.length - 1) {
