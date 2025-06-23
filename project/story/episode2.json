@@ -1,0 +1,20 @@
+{
+  "scenes": [
+    {
+      "bg": "../assets/backgrounds/bg_street.jpg",
+      "character": "../assets/characters/yuuki.png",
+      "lines": [
+        {"speaker": "結城ミチオ", "text": "名取さん、変なロボが鳴いてます！"},
+        {"speaker": "名取 梓馬", "text": "感情進化型か、厄介だな。"}
+      ]
+    },
+    {
+      "bg": "../assets/backgrounds/bg_lab.jpg",
+      "character": "../assets/characters/natori.png",
+      "lines": [
+        {"speaker": "名取 梓馬", "text": "旧オーナーの声を再現しているらしい。"},
+        {"speaker": "結城ミチオ", "text": "ロボが幽霊になったみたいですね。"}
+      ]
+    }
+  ]
+}
