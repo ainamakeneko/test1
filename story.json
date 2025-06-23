@@ -1,0 +1,22 @@
+{
+  "lines": [
+    {
+      "bg": "bg1.jpg",
+      "char": "detective.png",
+      "speaker": "Narration",
+      "text": "雨の夜。名取は灯りの消えた路地を歩いていた。"
+    },
+    {
+      "bg": "bg2.jpg",
+      "char": "detective.png",
+      "speaker": "名取 梓馬",
+      "text": "さて、依頼人はここで待っているはずだが……"
+    },
+    {
+      "bg": "bg2.jpg",
+      "char": "client.png",
+      "speaker": "依頼人",
+      "text": "あなたが名取さん？助けてほしいことがあるの。"
+    }
+  ]
+}
