@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>失われた時計 - Episode 1</title>
+  <style>
+    body {
+      margin: 0;
+      background: #222;
+      color: #f5f5dc;
+      font-family: "Courier New", monospace;
+    }
+    #container {
+      max-width: 640px;
+      min-width: 360px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    #startScreen, #gameScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      min-height: 100vh;
+    }
+    #startScreen { cursor: pointer; }
+    #background {
+      width: 100%;
+      height: 300px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      border: 4px solid #8b6f47;
+    }
+    #character {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 200px;
+      height: 350px;
+      transform: translate(-50%, 0);
+      background-size: contain;
+      background-repeat: no-repeat;
+      z-index: 1;
+    }
+    #textBox {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      border: 2px solid #8b6f47;
+      padding: 10px;
+      padding-right: 200px;
+      cursor: pointer;
+      min-height: 100px;
+      background: rgba(34, 34, 34, 0.8);
+      z-index: 2;
+    }
+    #natoriPortrait {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      width: 180px;
+      height: 330px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      pointer-events: none;
+      z-index: 1;
+    }
+    #speaker { font-weight: bold; display: block; }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="startScreen">
+      <h1>失われた時計</h1>
+      <p>クリックで開始</p>
+    </div>
+    <div id="gameScreen" style="display:none;">
+      <div id="background">
+        <div id="character"></div>
+        <div id="natoriPortrait"></div>
+      </div>
+      <div id="textBox">
+        <span id="speaker"></span>
+        <span id="message"></span>
+      </div>
+    </div>
+  </div>
+  <script>
+  const scriptYaml = `scene1:
+  bg: bg_rainy_city.png
+  lines:
+    - speaker: 名取（モノローグ）
+      text: "この街じゃ、記録されなきゃ存在しない。"
+    - speaker: 名取（モノローグ）
+      text: "でも、“記録されたもの”が真実とは限らない。"
+    - speaker: 名取（モノローグ）
+      text: "証拠は整ってた。声も、時間も、浮気の証も。……整いすぎてた。"
+scene2:
+  bg: bg_saeki_room.png
+  lines:
+    - speaker: 彩花
+      text: "この音声、夫と……女の子の会話なんです。でも、声紋は“未登録者”って。AIが“適切なラベルがない”って言うんです"
+    - speaker: 名取
+      text: "昔はな、そういう女の名前に“誰？”って聞き返すだけだった。今じゃ、AIが“未登録”って言っただけで、証拠になっちまうのか"
+scene3:
+  bg: bg_natori_office.png
+  lines:
+    - speaker: 名取
+      text: "波形が……滑らかすぎる。呼吸の隙がない。まるで……ノイズ除去された合成音"
+    - speaker: 名取（モノローグ）
+      text: "夫の声と“モデル音声”、自動補完で会話を合成。まるで本物。これは──“生成された不倫”だ。"
+scene4:
+  bg: bg_company.png
+  lines:
+    - speaker: 若手社員
+      text: "あの音声記録は……本来、社外に出るはずでは……いえ、実験段階のアルゴリズムが……"
+    - speaker: 名取（声を低く）
+      text: "“家庭で起きる感情トラブル”を、データとして測る実験。それを、“既にある家庭”でやったんだな？"
+    - speaker: 社員（うつむいて）
+      text: "あの……旦那様の会社、うちの開発協力企業です。“適応テスト対象”として、事前同意は……"
+    - speaker: 名取（冷笑）
+      text: "あんたら、家族の記憶も“利用規約”で収集すんのか"
+scene5:
+  bg: bg_saeki_night.png
+  lines:
+    - speaker: 俊明
+      text: "……本当に、浮気なんてしてない。だけど、俺の声が女と喋ってたって……俺も、どう信じていいか……"
+    - speaker: 彩花（震えながら）
+      text: "信じたかった……でも、記録が、全部あなたを“有罪”にして……私は……"
+    - speaker: 名取（静かに立ち上がる）
+      text: "記録は正しかった。ただし、“事実”を作ったのは、AIだ。──あんたらの生活が、知らねえ誰かの実験台にされてたんだよ"
+scene6:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: 栞
+      text: "“音声”が嘘をつく時代なんて……皮肉ですね"
+    - speaker: 名取
+      text: "嘘をついたのは音じゃねぇ。“音を正しいと思い込んだ”社会のほうだ"
+    - speaker: 名取（モノローグ）
+      text: "“真実”は、記録の外にある。人の目も、心も、ゆらぎも。AIがそれを測ろうとする時──そこに戦いが始まる。"`;
+
+  function parseScript(yaml) {
+    const lines = yaml.split(/\n/);
+    const scenes = [];
+    let current = null;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (/^scene\d+:$/.test(line)) {
+        if (current) scenes.push(current);
+        current = { bg: '', lines: [] };
+      } else if (line.startsWith('bg:')) {
+        if (current) current.bg = line.substring(3).trim();
+      } else if (line.startsWith('- speaker:')) {
+        const speaker = line.substring(10).trim();
+        const textLine = lines[++i].trim();
+        const text = textLine.split('text:')[1].trim();
+        current.lines.push({ speaker, text: text.replace(/^"|"$/g, '') });
+      }
+    }
+    if (current) scenes.push(current);
+    return scenes;
+  }
+
+  const scenes = parseScript(scriptYaml);
+  let sceneIndex = 0;
+  let lineIndex = 0;
+
+  const charImages = {
+    '名取': 'char_natori.png',
+    '名取（モノローグ）': 'char_natori.png',
+    '名取（声を低く）': 'char_natori.png',
+    '名取（冷笑）': 'char_natori.png',
+    '名取（静かに立ち上がる）': 'char_natori.png',
+    '彩花': '',
+    '彩花（震えながら）': '',
+    '俊明': '',
+    '若手社員': '',
+    '社員（うつむいて）': '',
+    '栞': 'char_shiori.png',
+    'Narration': ''
+  };
+
+  function setScene(idx) {
+    const sc = scenes[idx];
+    document.getElementById('background').style.backgroundImage = 'url(' + sc.bg + ')';
+    lineIndex = 0;
+  }
+
+  function startGame() {
+    document.getElementById('startScreen').style.display = 'none';
+    document.getElementById('gameScreen').style.display = 'flex';
+    document.getElementById('natoriPortrait').style.backgroundImage = 'url(' + charImages['名取'] + ')';
+    setScene(sceneIndex);
+    showLine();
+  }
+
+  function showLine() {
+    const scene = scenes[sceneIndex];
+    if (lineIndex < scene.lines.length) {
+      const line = scene.lines[lineIndex];
+      document.getElementById('speaker').textContent = line.speaker;
+      document.getElementById('message').textContent = line.text;
+      const char = line.speaker.startsWith('名取') ? '' : (charImages[line.speaker] || '');
+      if (char) {
+        document.getElementById('character').style.backgroundImage = 'url(' + char + ')';
+      } else {
+        document.getElementById('character').style.backgroundImage = 'none';
+      }
+    } else if (sceneIndex < scenes.length - 1) {
+      sceneIndex++;
+      setScene(sceneIndex);
+      showLine();
+    } else {
+      document.getElementById('speaker').textContent = '';
+      document.getElementById('message').textContent = '--- 完 ---';
+    }
+  }
+
+  document.getElementById('startScreen').addEventListener('click', startGame);
+  document.getElementById('textBox').addEventListener('click', () => {
+    const scene = scenes[sceneIndex];
+    if (lineIndex < scene.lines.length) {
+      lineIndex++;
+      showLine();
+    } else if (sceneIndex < scenes.length - 1) {
+      sceneIndex++;
+      setScene(sceneIndex);
+      showLine();
+    }
+  });
+  </script>
+</body>
+</html>
