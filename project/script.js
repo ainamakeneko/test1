@@ -2,6 +2,50 @@ let episodeData = null;
 let sceneIndex = 0;
 let lineIndex = 0;
 
+const embeddedEpisodes = {
+  'episode1.json': {
+    scenes: [
+      {
+        bg: '../assets/backgrounds/bg_office.jpg',
+        character: '../assets/characters/natori.png',
+        lines: [
+          { speaker: '名取 梓馬', text: '調査を始めるぞ。' },
+          { speaker: '依頼人', text: '夫の浮気を調べてください。' },
+          { speaker: '名取 梓馬', text: 'AIの記録だけでは真実は見えない。' }
+        ]
+      },
+      {
+        bg: '../assets/backgrounds/bg_bar.jpg',
+        character: '../assets/characters/shiori.png',
+        lines: [
+          { speaker: '栞', text: 'ここがBarエデンよ。' },
+          { speaker: '名取 梓馬', text: 'この街はAIに頼りすぎだな。' }
+        ]
+      }
+    ]
+  },
+  'episode2.json': {
+    scenes: [
+      {
+        bg: '../assets/backgrounds/bg_street.jpg',
+        character: '../assets/characters/yuuki.png',
+        lines: [
+          { speaker: '結城ミチオ', text: '名取さん、変なロボが鳴いてます！' },
+          { speaker: '名取 梓馬', text: '感情進化型か、厄介だな。' }
+        ]
+      },
+      {
+        bg: '../assets/backgrounds/bg_lab.jpg',
+        character: '../assets/characters/natori.png',
+        lines: [
+          { speaker: '名取 梓馬', text: '旧オーナーの声を再現しているらしい。' },
+          { speaker: '結城ミチオ', text: 'ロボが幽霊になったみたいですね。' }
+        ]
+      }
+    ]
+  }
+};
+
 document.getElementById('startBtn').addEventListener('click', () => {
   document.getElementById('start').style.display = 'none';
   document.getElementById('episodeSelect').style.display = 'block';
@@ -16,18 +60,25 @@ document.getElementById('textbox').addEventListener('click', showNextLine);
 function startEpisode(file) {
   document.getElementById('episodeSelect').style.display = 'none';
   document.getElementById('game').style.display = 'block';
+  document.getElementById('text').textContent = '読み込み中...';
   fetch('story/' + file)
-    .then(res => res.json())
-    .then(data => {
-      episodeData = data.scenes;
-      sceneIndex = 0;
-      lineIndex = 0;
-      setScene(episodeData[0]);
-      showNextLine();
-    })
+    .then(res => (res.ok ? res.json() : Promise.reject()))
+    .then(data => setEpisode(data))
     .catch(() => {
-      document.getElementById('text').textContent = '読み込み失敗';
+      if (embeddedEpisodes[file]) {
+        setEpisode(embeddedEpisodes[file]);
+      } else {
+        document.getElementById('text').textContent = '読み込み失敗';
+      }
     });
+}
+
+function setEpisode(data) {
+  episodeData = data.scenes;
+  sceneIndex = 0;
+  lineIndex = 0;
+  setScene(episodeData[0]);
+  showNextLine();
 }
 
 function setScene(scene) {
