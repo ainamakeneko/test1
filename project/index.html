@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>シンプルノベル</title>
+  <link rel="stylesheet" href="layout.css">
+</head>
+<body>
+  <div id="start" class="screen">
+    <h1>シンプルノベル</h1>
+    <button id="startBtn">開始</button>
+  </div>
+  <div id="episodeSelect" class="screen" style="display:none;">
+    <h2>エピソード選択</h2>
+    <button class="ep" data-ep="episode1.json">エピソード1</button>
+    <button class="ep" data-ep="episode2.json">エピソード2</button>
+  </div>
+  <div id="game" class="screen" style="display:none;">
+    <div id="bg"></div>
+    <div id="character"></div>
+    <div id="textbox">
+      <span id="speaker"></span>
+      <p id="text"></p>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
