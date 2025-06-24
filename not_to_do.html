@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>やらなくていいことメモ帳（お試し版）</title>
+<style>
+body{font-family:'Noto Sans', sans-serif; margin:0; padding:0; text-align:center; background:#f2f2f2;}
+#control{margin:10px;}
+#board{position:relative; height:60vh; width:60%; border:1px solid #ccc; margin:10px; overflow:hidden; background:#fff; display:inline-block;}
+#stack{position:relative; height:60vh; width:35%; border:1px solid #ccc; margin-top:10px; background:#e8e8e8; display:inline-flex; flex-wrap:wrap; align-content:flex-end; justify-content:flex-start;}
+.block{width:20px; height:20px; margin:1px; background:#888;}
+.item{position:absolute; cursor:pointer; padding:4px 8px; border-radius:4px; transition:left 1s linear, top 1s linear;}
+.explode{position:absolute; pointer-events:none; animation:boom 0.5s forwards; font-size:24px;}
+.history{max-height:30vh; overflow-y:auto; background:#fafafa; border-top:1px solid #ccc; padding:5px; text-align:left; font-size:14px;}
+.history-entry{margin:2px 0;}
+#score{font-size:20px; margin-top:5px;}
+#level{font-size:18px; margin-top:5px;}
+#celebrate{position:fixed; top:0; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.8); font-size:32px; font-weight:bold; z-index:100;}
+#ending{position:fixed; top:0; left:0; right:0; bottom:0; background:#000; color:#fff; overflow:auto; display:none; z-index:200;}
+#ending div{padding:40px; animation:roll 10s linear forwards; white-space:pre-wrap;}
+@keyframes roll{from{transform:translateY(100%);}to{transform:translateY(-100%);}}
+#commentBox{display:flex; align-items:center; justify-content:center; margin:10px; font-size:18px;}
+#catText{margin-left:10px;}
+#comboText{margin-left:10px; color:orange; font-weight:bold;}
+@keyframes boom{0%{opacity:1; transform:scale(0);}100%{opacity:0; transform:scale(2);}}
+</style>
+</head>
+<body>
+<div id="control">
+<select id="profile"></select>
+<button id="refresh">再表示</button>
+</div>
+<div id="board"></div>
+<div id="stack"></div>
+<div id="score">Score: <span id="scoreValue">0</span></div>
+<div id="level">Level: <span id="levelValue">1</span></div>
+<div id="commentBox">
+  <svg id="catImg" width="60" height="60" viewBox="0 0 100 100">
+    <circle cx="50" cy="60" r="30" fill="#fdd835" stroke="#555" stroke-width="3"/>
+    <polygon points="30,40 20,10 40,30" fill="#fdd835" stroke="#555" stroke-width="3"/>
+    <polygon points="70,40 60,10 80,30" fill="#fdd835" stroke="#555" stroke-width="3"/>
+    <circle cx="40" cy="55" r="5" fill="#555"/>
+    <circle cx="60" cy="55" r="5" fill="#555"/>
+    <polygon points="45,65 50,70 55,65" fill="#555"/>
+  </svg>
+  <span id="catText"></span>
+  <span id="comboText"></span>
+</div>
+<div class="history" id="history"></div>
+<div id="celebrate" style="display:none;">ステージクリア！</div>
+<div id="ending"><div>ご利用ありがとうございました\n制作者: 怠け猫AI</div></div>
+
+<script>
+const data = {
+  '会社員（真面目）': [
+    {text:'メールを返す', importance:3, category:'仕事'},
+    {text:'資料を隅々まで読む', importance:2, category:'仕事'},
+    {text:'靴を揃える', importance:1, category:'マナー'},
+    {text:'意味もなく気を遣う', importance:1, category:'人間関係'},
+    {text:'定時後も残る', importance:2, category:'仕事'},
+    {text:'完璧に整理整頓する', importance:2, category:'整理'},
+    {text:'上司の顔色をうかがう', importance:3, category:'人間関係'},
+    {text:'無駄な会議を開く', importance:3, category:'仕事'},
+    {text:'社内チャットを常時監視', importance:2, category:'仕事'},
+    {text:'夜中に返信する', importance:1, category:'仕事'}
+  ],
+  'フリーランス（気まま）': [
+    {text:'SNSを延々チェック', importance:2, category:'時間浪費'},
+    {text:'全案件受ける', importance:3, category:'仕事'},
+    {text:'完璧なスケジュールを立てる', importance:1, category:'計画'},
+    {text:'請求書をデコる', importance:1, category:'その他'},
+    {text:'夜ふかし作業', importance:2, category:'健康'},
+    {text:'メールを秒で返す', importance:2, category:'仕事'},
+    {text:'毎日新サービスを試す', importance:1, category:'学習'},
+    {text:'タスクを色分けしすぎる', importance:1, category:'整理'},
+    {text:'即レス強迫観念', importance:3, category:'仕事'},
+    {text:'自己啓発本を積む', importance:1, category:'学習'}
+  ],
+  '主婦（がんばり屋）': [
+    {text:'毎日完璧に掃除', importance:3, category:'家事'},
+    {text:'栄養完璧なごはん作り', importance:2, category:'家事'},
+    {text:'家計簿を細かくつける', importance:2, category:'家計'},
+    {text:'近所付き合い全部参加', importance:3, category:'人間関係'},
+    {text:'子どもに過剰に気を配る', importance:2, category:'家族'},
+    {text:'SNSで理想育児検索', importance:1, category:'時間浪費'},
+    {text:'完璧な収納術にこだわる', importance:1, category:'整理'},
+    {text:'寝る前に明日の準備を全部', importance:2, category:'家事'},
+    {text:'趣味の時間を後回し', importance:3, category:'自分'},
+    {text:'献立を１週間分考える', importance:1, category:'家事'}
+  ],
+  '学生（SNS依存）': [
+    {text:'友達の投稿を全部見る', importance:2, category:'SNS'},
+    {text:'課題をギリギリまで放置', importance:3, category:'勉強'},
+    {text:'ゲーム実況を徹夜で視聴', importance:2, category:'娯楽'},
+    {text:'教科書を隅から隅まで写す', importance:1, category:'勉強'},
+    {text:'返信が来るまでスマホ凝視', importance:2, category:'SNS'},
+    {text:'どうでもいいグルチャ参加', importance:1, category:'SNS'},
+    {text:'単位計算を毎日確認', importance:1, category:'勉強'},
+    {text:'先生の顔色をうかがう', importance:3, category:'人間関係'},
+    {text:'朝までチャット', importance:2, category:'SNS'},
+    {text:'趣味の動画を無限再生', importance:2, category:'娯楽'}
+  ],
+  '猫（完全自由）': [
+    {text:'毛づくろいを完璧にする', importance:2, category:'生活'},
+    {text:'人間に媚びる', importance:3, category:'行動'},
+    {text:'高いところから世界征服を妄想', importance:1, category:'妄想'},
+    {text:'毎回おやつを要求', importance:2, category:'食事'},
+    {text:'飼い主の後をずっとついて回る', importance:1, category:'行動'},
+    {text:'ネズミのおもちゃを常に狩る', importance:1, category:'遊び'},
+    {text:'昼寝を我慢', importance:3, category:'健康'},
+    {text:'朝5時に起こす', importance:2, category:'行動'},
+    {text:'家じゅう走り回る', importance:2, category:'遊び'},
+    {text:'ダンボール箱を全部試す', importance:1, category:'遊び'}
+  ]
+};
+
+const profileSelect = document.getElementById('profile');
+for(const key in data){
+  const opt = document.createElement('option');
+  opt.value = key;
+  opt.textContent = key;
+  profileSelect.appendChild(opt);
+}
+profileSelect.selectedIndex = 0;
+
+const board = document.getElementById('board');
+const stack = document.getElementById('stack');
+const scoreEl = document.getElementById('scoreValue');
+const comboEl = document.getElementById('comboText');
+const historyEl = document.getElementById('history');
+const levelEl = document.getElementById('levelValue');
+const celebrate = document.getElementById('celebrate');
+const ending = document.getElementById('ending');
+let level = 1;
+const finalLevel = 3;
+let history = [];
+let score = 0;
+let lastCategory = null;
+let comboCount = 0;
+let comboTimer = null;
+
+function randomPosition(el){
+  const bw = board.clientWidth;
+  const bh = board.clientHeight;
+  const ew = el.offsetWidth;
+  const eh = el.offsetHeight;
+  el.style.left = Math.random() * Math.max(bw - ew, 0) + 'px';
+  el.style.top = Math.random() * Math.max(bh - eh, 0) + 'px';
+}
+
+const colors=['#e91e63','#3f51b5','#4caf50','#ff9800','#9c27b0','#009688','#795548'];
+const fonts=["'Comic Sans MS',cursive","'Times New Roman',serif","'Arial Black',sans-serif","'Courier New',monospace","'Noto Sans',sans-serif"];
+
+function importanceStyle(importance){
+  let size='12px';
+  if(importance>=3) size='20px';
+  else if(importance==2) size='16px';
+  return {size};
+}
+
+function showItems(){
+  board.innerHTML='';
+  const profile = profileSelect.value;
+  const items = data[profile];
+  const baseCount = Math.floor(Math.random()*6)+5;
+  const count = Math.min(items.length, baseCount + level - 1);
+  const shuffled = items.slice().sort(()=>Math.random()-0.5).slice(0,count);
+  shuffled.forEach(item=>{
+    const div = document.createElement('div');
+    div.className='item';
+    div.textContent=item.text;
+    const style = importanceStyle(item.importance);
+    const extraColor = colors[Math.floor(Math.random()*colors.length)];
+    const font = fonts[Math.floor(Math.random()*fonts.length)];
+    div.style.color=extraColor;
+    div.style.fontSize=style.size;
+    div.style.fontFamily=font;
+    div.style.fontStyle=Math.random()<0.5?'italic':'normal';
+    div.style.fontWeight=Math.random()<0.5?'bold':'normal';
+    board.appendChild(div);
+    div.addEventListener('click', ()=>{
+      board.removeChild(div);
+      const now = new Date();
+      history.push({text:item.text,time:now,profile:profile,category:item.category});
+      addHistory(item.text, now, profile, item.category);
+
+      // explosion effect
+      const boom=document.createElement('span');
+      boom.textContent='💥';
+      boom.className='explode';
+      boom.style.left=div.style.left;
+      boom.style.top=div.style.top;
+      board.appendChild(boom);
+      setTimeout(()=>board.removeChild(boom),500);
+
+      // scoring
+      score += item.importance * 10;
+      scoreEl.textContent = score;
+
+      // combo check
+      if(lastCategory === item.category){
+        comboCount += 1;
+      } else {
+        comboCount = 1;
+        lastCategory = item.category;
+      }
+      clearTimeout(comboTimer);
+      comboEl.textContent = comboCount > 1 ? `COMBO x${comboCount}!` : '';
+      comboTimer = setTimeout(()=>{comboEl.textContent=''; comboCount=0; lastCategory=null;},1500);
+
+      // stack block
+      const block=document.createElement('div');
+      block.className='block';
+      block.style.background=extraColor;
+      stack.appendChild(block);
+
+      showComment();
+
+      if(board.querySelectorAll('.item').length===0){
+        stageClear();
+      }
+    });
+    randomPosition(div);
+  });
+}
+
+function addHistory(text,time,profile,category){
+  const div=document.createElement('div');
+  div.className='history-entry';
+  div.textContent=`[${time.toLocaleString()}] (${profile}/${category}) ${text}`;
+  historyEl.prepend(div);
+}
+
+function showComment(){
+  const comments=[
+    'それ、今やる意味ある？',
+    '世界はまだ回ってるよ',
+    'まぁ、今日は休もう',
+    '気にしない気にしない',
+    'それよりお昼寝しよう'
+  ];
+  document.getElementById('catText').textContent=
+    comments[Math.floor(Math.random()*comments.length)];
+}
+
+function stageClear(){
+  celebrate.style.display='flex';
+  celebrate.textContent=`ステージ${level}クリア！`;
+  setTimeout(()=>{
+    celebrate.style.display='none';
+    level++;
+    if(level>finalLevel){
+      showEnding();
+    }else{
+      levelEl.textContent=level;
+      showItems();
+    }
+  },1500);
+}
+
+function showEnding(){
+  ending.style.display='block';
+}
+
+document.getElementById('refresh').addEventListener('click',showItems);
+profileSelect.addEventListener('change',showItems);
+
+window.addEventListener('load',showItems);
+setInterval(()=>{
+  const items = Array.from(document.querySelectorAll('.item'));
+  const moveCount = Math.min(items.length, Math.floor(Math.random()*3)+1);
+  for(let i=0;i<moveCount;i++){
+    const idx = Math.floor(Math.random()*items.length);
+    const el = items.splice(idx,1)[0];
+    if(el) randomPosition(el);
+  }
+},3000);
+</script>
+</body>
+</html>
