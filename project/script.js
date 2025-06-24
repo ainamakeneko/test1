@@ -1,6 +1,8 @@
 let episodeData = null;
 let sceneIndex = 0;
 let lineIndex = 0;
+const natoriElem = document.getElementById('natori');
+const otherElem = document.getElementById('otherCharacter');
 
 const embeddedEpisodes = {
   'episode1.json': {
@@ -77,22 +79,18 @@ function setEpisode(data) {
   episodeData = data.scenes;
   sceneIndex = 0;
   lineIndex = 0;
+  natoriElem.style.backgroundImage = "url('assets/characters/natori.png')";
   setScene(episodeData[0]);
   showNextLine();
 }
 
 function setScene(scene) {
   document.getElementById('bg').style.backgroundImage = 'url(' + scene.bg + ')';
-  const charElem = document.getElementById('character');
-  charElem.style.backgroundImage = 'url(' + scene.character + ')';
   if (scene.character.includes('natori')) {
-    charElem.style.right = '5%';
-    charElem.style.left = 'auto';
-    charElem.style.transform = 'none';
+    otherElem.style.display = 'none';
   } else {
-    charElem.style.left = '50%';
-    charElem.style.right = 'auto';
-    charElem.style.transform = 'translateX(-50%)';
+    otherElem.style.display = 'block';
+    otherElem.style.backgroundImage = 'url(' + scene.character + ')';
   }
 }
 

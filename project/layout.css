@@ -25,6 +25,7 @@ html, body {
 #scene {
   position: relative;
   width: 100%;
+  max-width: 600px;
   height: 50vh;
 }
 
@@ -38,7 +39,8 @@ html, body {
   background-position: center;
 }
 
-#character {
+#otherCharacter,
+#natori {
   position: absolute;
   bottom: 0;
   width: 40vw;
@@ -46,6 +48,15 @@ html, body {
   height: 60%;
   background-size: contain;
   background-repeat: no-repeat;
+}
+
+#otherCharacter {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#natori {
+  right: 5%;
 }
 
 #textbox {
