@@ -4,49 +4,6 @@ let lineIndex = 0;
 const natoriElem = document.getElementById('natori');
 const otherElem = document.getElementById('otherCharacter');
 
-const embeddedEpisodes = {
-  'episode1.json': {
-    scenes: [
-      {
-        bg: 'assets/backgrounds/bg_office.png',
-        character: 'assets/characters/natori.png',
-        lines: [
-          { speaker: '名取 梓馬', text: '調査を始めるぞ。' },
-          { speaker: '依頼人', text: '夫の浮気を調べてください。' },
-          { speaker: '名取 梓馬', text: 'AIの記録だけでは真実は見えない。' }
-        ]
-      },
-      {
-        bg: 'assets/backgrounds/bg_bar.png',
-        character: 'assets/characters/shiori.png',
-        lines: [
-          { speaker: '栞', text: 'ここがBarエデンよ。' },
-          { speaker: '名取 梓馬', text: 'この街はAIに頼りすぎだな。' }
-        ]
-      }
-    ]
-  },
-  'episode2.json': {
-    scenes: [
-      {
-        bg: 'assets/backgrounds/bg_street.png',
-        character: 'assets/characters/yuuki.png',
-        lines: [
-          { speaker: '結城ミチオ', text: '名取さん、変なロボが鳴いてます！' },
-          { speaker: '名取 梓馬', text: '感情進化型か、厄介だな。' }
-        ]
-      },
-      {
-        bg: 'assets/backgrounds/bg_lab.png',
-        character: 'assets/characters/natori.png',
-        lines: [
-          { speaker: '名取 梓馬', text: '旧オーナーの声を再現しているらしい。' },
-          { speaker: '結城ミチオ', text: 'ロボが幽霊になったみたいですね。' }
-        ]
-      }
-    ]
-  }
-};
 
 document.getElementById('startBtn').addEventListener('click', () => {
   document.getElementById('start').style.display = 'none';
@@ -67,11 +24,7 @@ function startEpisode(file) {
     .then(res => (res.ok ? res.json() : Promise.reject()))
     .then(data => setEpisode(data))
     .catch(() => {
-      if (embeddedEpisodes[file]) {
-        setEpisode(embeddedEpisodes[file]);
-      } else {
-        document.getElementById('text').textContent = '読み込み失敗';
-      }
+      document.getElementById('text').textContent = '読み込み失敗';
     });
 }
 
