@@ -20,7 +20,7 @@ function startEpisode(file) {
   document.getElementById('episodeSelect').style.display = 'none';
   document.getElementById('game').style.display = 'block';
   document.getElementById('text').textContent = '読み込み中...';
-  fetch('story/' + file)
+  fetch(file)
     .then(res => (res.ok ? res.json() : Promise.reject()))
     .then(data => setEpisode(data))
     .catch(() => {
