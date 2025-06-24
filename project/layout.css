@@ -1,34 +1,51 @@
-body {
+html, body {
   margin: 0;
+  padding: 0;
+  height: 100%;
   font-family: sans-serif;
   background: #000;
   color: #fff;
 }
+
 .screen {
-  text-align: center;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  box-sizing: border-box;
 }
+
+#game {
+  justify-content: space-between;
+  padding: 10px;
+}
+
 #bg {
   width: 100%;
-  height: 300px;
+  height: 40vh;
   background-size: cover;
   background-position: center;
 }
+
 #character {
-  width: 200px;
-  height: 300px;
+  width: 40vw;
+  max-width: 300px;
+  height: 30vh;
   background-size: contain;
   background-repeat: no-repeat;
-  margin: 10px auto;
 }
+
 #textbox {
   border: 1px solid #888;
   padding: 10px;
-  margin: 0 auto;
-  width: 90%;
-  background: rgba(0,0,0,0.6);
+  width: 100%;
+  max-width: 600px;
+  background: rgba(0, 0, 0, 0.6);
   cursor: pointer;
+  box-sizing: border-box;
 }
+
 #speaker {
   font-weight: bold;
 }

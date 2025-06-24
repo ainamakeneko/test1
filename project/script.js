@@ -6,8 +6,8 @@ const embeddedEpisodes = {
   'episode1.json': {
     scenes: [
       {
-        bg: '../assets/backgrounds/bg_office.jpg',
-        character: '../assets/characters/natori.png',
+        bg: 'assets/backgrounds/bg_office.png',
+        character: 'assets/characters/natori.png',
         lines: [
           { speaker: '名取 梓馬', text: '調査を始めるぞ。' },
           { speaker: '依頼人', text: '夫の浮気を調べてください。' },
@@ -15,8 +15,8 @@ const embeddedEpisodes = {
         ]
       },
       {
-        bg: '../assets/backgrounds/bg_bar.jpg',
-        character: '../assets/characters/shiori.png',
+        bg: 'assets/backgrounds/bg_bar.png',
+        character: 'assets/characters/shiori.png',
         lines: [
           { speaker: '栞', text: 'ここがBarエデンよ。' },
           { speaker: '名取 梓馬', text: 'この街はAIに頼りすぎだな。' }
@@ -27,16 +27,16 @@ const embeddedEpisodes = {
   'episode2.json': {
     scenes: [
       {
-        bg: '../assets/backgrounds/bg_street.jpg',
-        character: '../assets/characters/yuuki.png',
+        bg: 'assets/backgrounds/bg_street.png',
+        character: 'assets/characters/yuuki.png',
         lines: [
           { speaker: '結城ミチオ', text: '名取さん、変なロボが鳴いてます！' },
           { speaker: '名取 梓馬', text: '感情進化型か、厄介だな。' }
         ]
       },
       {
-        bg: '../assets/backgrounds/bg_lab.jpg',
-        character: '../assets/characters/natori.png',
+        bg: 'assets/backgrounds/bg_lab.png',
+        character: 'assets/characters/natori.png',
         lines: [
           { speaker: '名取 梓馬', text: '旧オーナーの声を再現しているらしい。' },
           { speaker: '結城ミチオ', text: 'ロボが幽霊になったみたいですね。' }
