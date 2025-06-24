@@ -16,22 +16,34 @@ html, body {
   box-sizing: border-box;
 }
 
+
 #game {
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 10px;
 }
 
-#bg {
+#scene {
+  position: relative;
   width: 100%;
-  height: 40vh;
+  height: 50vh;
+}
+
+#bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-size: cover;
   background-position: center;
 }
 
 #character {
+  position: absolute;
+  bottom: 0;
   width: 40vw;
   max-width: 300px;
-  height: 30vh;
+  height: 60%;
   background-size: contain;
   background-repeat: no-repeat;
 }

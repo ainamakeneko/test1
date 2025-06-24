@@ -83,7 +83,17 @@ function setEpisode(data) {
 
 function setScene(scene) {
   document.getElementById('bg').style.backgroundImage = 'url(' + scene.bg + ')';
-  document.getElementById('character').style.backgroundImage = 'url(' + scene.character + ')';
+  const charElem = document.getElementById('character');
+  charElem.style.backgroundImage = 'url(' + scene.character + ')';
+  if (scene.character.includes('natori')) {
+    charElem.style.right = '5%';
+    charElem.style.left = 'auto';
+    charElem.style.transform = 'none';
+  } else {
+    charElem.style.left = '50%';
+    charElem.style.right = 'auto';
+    charElem.style.transform = 'translateX(-50%)';
+  }
 }
 
 function showNextLine() {
