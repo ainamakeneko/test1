@@ -53,22 +53,10 @@
       width: 100%;
       border: 1px solid #888;
       padding: 10px;
-      padding-right: 200px;
       cursor: pointer;
       min-height: 80px;
       background: rgba(0,0,0,0.6);
       z-index: 2;
-    }
-    #natoriPortrait {
-      position: absolute;
-      top: 50%;
-      right: 10px;
-      width: 180px;
-      height: 330px;
-      background-size: contain;
-      background-repeat: no-repeat;
-      pointer-events: none;
-      z-index: 1;
     }
     #speaker {
       font-weight: bold;
@@ -85,7 +73,6 @@
     <div id="gameScreen" style="display:none;">
       <div id="background">
         <div id="character"></div>
-        <div id="natoriPortrait"></div>
       </div>
       <div id="textBox">
         <span id="speaker"></span>
@@ -204,7 +191,6 @@ scene4:
   function startGame() {
     document.getElementById('startScreen').style.display = 'none';
     document.getElementById('gameScreen').style.display = 'flex';
-    document.getElementById('natoriPortrait').style.backgroundImage = 'url(' + charImages['名取 梓馬'] + ')';
     setScene(sceneIndex);
     showLine();
   }

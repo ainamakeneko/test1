@@ -11,8 +11,7 @@
     #gameScreen { display:none; position:relative; }
     #background { width:100%; height:300px; background-size:cover; background-position:center; position:relative; }
     #character { position:absolute; top:50%; left:50%; width:200px; height:350px; transform:translate(-50%,0); background-size:contain; background-repeat:no-repeat; z-index:1; }
-    #natoriPortrait { position:absolute; bottom:0; right:10px; width:180px; height:330px; background-size:contain; background-repeat:no-repeat; pointer-events:none; z-index:1; }
-    #textBox { position:absolute; bottom:0; left:0; width:100%; border:1px solid #888; padding:10px; padding-right:200px; cursor:pointer; min-height:80px; background:rgba(0,0,0,0.6); z-index:2; }
+    #textBox { position:absolute; bottom:0; left:0; width:100%; border:1px solid #888; padding:10px; cursor:pointer; min-height:80px; background:rgba(0,0,0,0.6); z-index:2; }
     #speaker { font-weight:bold; display:block; }
     #chapterEnd { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.8); padding:20px; display:none; flex-direction:column; align-items:center; z-index:3; }
     #chapterList button { margin:5px; }
@@ -27,7 +26,6 @@
     <div id="gameScreen">
       <div id="background">
         <div id="character"></div>
-        <div id="natoriPortrait"></div>
       </div>
       <div id="textBox">
         <span id="speaker"></span>
@@ -133,7 +131,6 @@
     document.getElementById('chapterEnd').style.display = 'none';
     document.getElementById('startScreen').style.display = 'none';
     document.getElementById('gameScreen').style.display = 'flex';
-    document.getElementById('natoriPortrait').style.backgroundImage = 'url(' + getCharImage('natori_azuma') + ')';
     setScene(sceneIndex);
     showLine();
   }
