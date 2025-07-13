@@ -149,7 +149,7 @@ function showNextLine(){
   const line = chap.lines[lineIndex++];
   switch(line.type){
     case 'background':
-      bgEl.style.backgroundImage = `url(assets/backgrounds/${line.value}.png)`;
+      bgEl.style.backgroundImage = `url(assets/backgrounds/bg_${line.value}.png)`;
       charsEl.innerHTML = '';
       showNextLine();
       break;
@@ -177,7 +177,7 @@ function showCharacter(name){
   if(!img){
     img = document.createElement('img');
     img.dataset.name = name;
-    img.src = `assets/characters/${name}.png`;
+    img.src = `assets/characters/char_${name}.png`;
     const count = charsEl.querySelectorAll('img').length;
     img.style.left = (count*20 + 10)+'%';
     charsEl.appendChild(img);
