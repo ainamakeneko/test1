@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>失われた時計 - 短編ノベル</title>
+  <style>
+    body { margin:0; background:#000; color:#fff; font-family:sans-serif; }
+    #container { max-width:600px; min-width:360px; margin:0 auto; padding:20px; }
+    #startScreen, #gameScreen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; }
+    #gameScreen { display:none; }
+    #background { width:100%; height:300px; background-size:cover; background-position:center; position:relative; }
+    #character { position:absolute; top:50%; left:50%; width:200px; height:350px; transform:translate(-50%,0); background-size:contain; background-repeat:no-repeat; z-index:1; }
+    #textBox { position:absolute; bottom:0; left:0; width:100%; border:1px solid #888; padding:10px; cursor:pointer; min-height:80px; background:rgba(0,0,0,0.6); z-index:2; }
+    #speaker { font-weight:bold; display:block; }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="startScreen">
+      <h1>失われた時計</h1>
+      <p>クリックで開始</p>
+    </div>
+    <div id="gameScreen">
+      <div id="background">
+        <div id="character"></div>
+      </div>
+      <div id="textBox">
+        <span id="speaker"></span>
+        <span id="message"></span>
+      </div>
+    </div>
+  </div>
+
+<script>
+const scriptYaml = `scene1:
+  bg: bg_museum.png
+  lines:
+    - speaker: Narration
+      text: "静かな展示室。高価な懐中時計が忽然と姿を消した。"
+    - speaker: 名取 梓馬
+      text: "仕事は選ばない主義だが、今日は少し妙な気配がする。"
+scene2:
+  bg: bg_alley.png
+  lines:
+    - speaker: 依頼人
+      text: "あの時計は祖父の形見なんです。どうか取り戻して下さい。"
+    - speaker: 名取 梓馬
+      text: "痕跡は残ってる。機械じゃ消せない人の足取りってやつがな。"
+scene3:
+  bg: bg_bar_eden.png
+  lines:
+    - speaker: バーマスター 栞
+      text: "盗品にも魂が宿るって、聞いたことがありますか？"
+    - speaker: 名取 梓馬
+      text: "そいつを聞き分けるのが俺の役目ってわけだ。"
+`;
+
+function parseScript(yaml) {
+  const lines = yaml.split(/\n/);
+  const scenes = [];
+  let current = null;
+  for (let i=0; i<lines.length; i++) {
+    const line = lines[i].trim();
+    if (/^scene\d+:$/.test(line)) {
+      if (current) scenes.push(current);
+      current = { bg:'', lines:[] };
+    } else if (line.startsWith('bg:')) {
+      if (current) current.bg = line.substring(3).trim();
+    } else if (line.startsWith('- speaker:')) {
+      const speaker = line.substring(10).trim();
+      const textLine = lines[++i].trim();
+      const text = textLine.split('text:')[1].trim();
+      current.lines.push({speaker, text:text.replace(/^"|"$/g,'')});
+    }
+  }
+  if (current) scenes.push(current);
+  return scenes;
+}
+
+const scenes = parseScript(scriptYaml);
+let sceneIndex = 0;
+let lineIndex = 0;
+const charImages = {
+  '名取 梓馬': 'char_natori.png',
+  '依頼人': 'char_client.png',
+  'バーマスター 栞': 'char_shiori.png',
+  'Narration': ''
+};
+
+function setScene(idx) {
+  const sc = scenes[idx];
+  document.getElementById('background').style.backgroundImage = 'url(' + sc.bg + ')';
+  document.getElementById('character').style.backgroundImage = 'none';
+  lineIndex = 0;
+}
+
+function startGame() {
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'flex';
+  setScene(sceneIndex);
+  showLine();
+}
+
+function showLine() {
+  const scene = scenes[sceneIndex];
+  if (lineIndex < scene.lines.length) {
+    const line = scene.lines[lineIndex];
+    document.getElementById('speaker').textContent = line.speaker;
+    document.getElementById('message').textContent = line.text;
+    const char = charImages[line.speaker] || '';
+    if (char) {
+      document.getElementById('character').style.backgroundImage = 'url(' + char + ')';
+    } else {
+      document.getElementById('character').style.backgroundImage = 'none';
+    }
+  } else if (sceneIndex < scenes.length - 1) {
+    sceneIndex++;
+    setScene(sceneIndex);
+    showLine();
+  } else {
+    document.getElementById('speaker').textContent = '';
+    document.getElementById('message').textContent = '--- 完 ---';
+  }
+}
+
+document.getElementById('startScreen').addEventListener('click', startGame);
+document.getElementById('textBox').addEventListener('click', () => {
+  if (lineIndex < scenes[sceneIndex].lines.length) {
+    lineIndex++;
+    showLine();
+  } else if (sceneIndex < scenes.length - 1) {
+    sceneIndex++;
+    setScene(sceneIndex);
+    showLine();
+  }
+});
+</script>
+</body>
+</html>
