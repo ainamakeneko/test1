@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ノベルゲーム</title>
+<style>
+ body { margin:0; font-family:sans-serif; background:#000; color:#fff; }
+ #bg { width:100%; height:60vh; background-size:cover; background-position:center; }
+ #characters { position:relative; height:30vh; }
+ #characters img { position:absolute; bottom:0; height:100%; opacity:0.6; transition:opacity 0.5s; }
+ #characters img.active { opacity:1; }
+ #textbox { position:relative; padding:10px; background:rgba(0,0,0,0.7); cursor:pointer; }
+ #speaker { font-weight:bold; margin-right:10px; }
+ #chapterInfo { position:absolute; top:40%; left:0; right:0; text-align:center; font-size:24px; background:rgba(0,0,0,0.7); padding:10px; display:none; }
+ #credits { display:none; text-align:center; padding:20px; }
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<div id="characters"></div>
+<div id="chapterInfo"></div>
+<div id="textbox"><span id="speaker"></span><span id="text"></span></div>
+<div id="credits">
+ <p>--- 完 ---</p>
+ <p>制作: Test Team</p>
+</div>
+<script>
+const bgEl = document.getElementById('bg');
+const charsEl = document.getElementById('characters');
+const speakerEl = document.getElementById('speaker');
+const textEl = document.getElementById('text');
+const chapterInfoEl = document.getElementById('chapterInfo');
+const creditsEl = document.getElementById('credits');
+const textboxEl = document.getElementById('textbox');
+
+let chapters = [];
+let chapterIndex = 0;
+let lineIndex = 0;
+
+fetch('NOVEL_TAG.md').then(r => r.text()).then(parseScript).then(() => {
+  showChapter(0);
+});
+
+function parseScript(text){
+  const lines = text.split(/\r?\n/);
+  let current = null;
+  for(let i=0;i<lines.length;i++){
+    const line = lines[i].trim();
+    const chapMatch = line.match(/^第.+章：「.*」/);
+    if(chapMatch){
+      if(current) chapters.push(current);
+      current = {title: line, lines: []};
+      continue;
+    }
+    if(!current) continue;
+    let m;
+    if(m = line.match(/\[background:([^\]]+)\]/)){
+      current.lines.push({type:'background', value:m[1]});
+      continue;
+    }
+    if(line === '[bg_description]' || line === '[narration]'){
+      current.lines.push({type:'narration', text: lines[++i] ? lines[i].trim() : ''});
+      continue;
+    }
+    if(m = line.match(/\[character:([^\]]+)\]/)){
+      current.lines.push({type:'dialogue', speaker:m[1], text: lines[++i] ? lines[i].trim() : ''});
+      continue;
+    }
+    if(line === '[fadeout]'){
+      current.lines.push({type:'fadeout'});
+      continue;
+    }
+    if(line === '---'){
+      current.lines.push({type:'separator'});
+    }
+  }
+  if(current) chapters.push(current);
+}
+
+function showChapter(idx){
+  chapterIndex = idx;
+  lineIndex = 0;
+  chapterInfoEl.textContent = chapters[idx].title;
+  chapterInfoEl.style.display = 'block';
+  setTimeout(()=>{
+    chapterInfoEl.style.display = 'none';
+    showNextLine();
+  },1500);
+}
+
+function showNextLine(){
+  const chap = chapters[chapterIndex];
+  if(!chap){ showCredits(); return; }
+  if(lineIndex >= chap.lines.length){
+    if(++chapterIndex < chapters.length){
+      lineIndex = 0;
+      showChapter(chapterIndex);
+    } else {
+      showCredits();
+    }
+    return;
+  }
+  const line = chap.lines[lineIndex++];
+  switch(line.type){
+    case 'background':
+      bgEl.style.backgroundImage = `url(assets/backgrounds/${line.value}.jpg)`;
+      showNextLine();
+      break;
+    case 'dialogue':
+      speakerEl.textContent = line.speaker;
+      textEl.textContent = line.text;
+      showCharacter(line.speaker);
+      break;
+    case 'narration':
+      speakerEl.textContent = '';
+      textEl.textContent = line.text;
+      charsEl.querySelectorAll('img').forEach(img => img.classList.remove('active'));
+      break;
+    case 'separator':
+      showNextLine();
+      break;
+    case 'fadeout':
+      showCredits();
+      break;
+  }
+}
+
+function showCharacter(name){
+  let img = charsEl.querySelector(`img[data-name="${name}"]`);
+  if(!img){
+    img = document.createElement('img');
+    img.dataset.name = name;
+    img.src = `assets/characters/${name}.png`;
+    const count = charsEl.querySelectorAll('img').length;
+    img.style.left = (count*20 + 10)+'%';
+    charsEl.appendChild(img);
+  }
+  charsEl.querySelectorAll('img').forEach(i => i.classList.remove('active'));
+  img.classList.add('active');
+}
+
+textboxEl.addEventListener('click', showNextLine);
+
+function showCredits(){
+  textboxEl.style.display = 'none';
+  charsEl.style.display = 'none';
+  bgEl.style.display = 'none';
+  chapterInfoEl.style.display = 'none';
+  creditsEl.style.display = 'block';
+}
+</script>
+</body>
+</html>
