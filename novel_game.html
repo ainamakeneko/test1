@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>NOVEL TAG Visual Novel</title>
+  <style>
+    body { margin:0; background:#000; color:#fff; font-family:sans-serif; }
+    #container { max-width:600px; min-width:360px; margin:0 auto; padding:20px; }
+    #startScreen, #gameScreen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; }
+    #startScreen { cursor:pointer; }
+    #gameScreen { display:none; position:relative; }
+    #background { width:100%; height:300px; background-size:cover; background-position:center; position:relative; }
+    #character { position:absolute; top:50%; left:50%; width:200px; height:350px; transform:translate(-50%,0); background-size:contain; background-repeat:no-repeat; z-index:1; }
+    #textBox { position:absolute; bottom:0; left:0; width:100%; border:1px solid #888; padding:10px; cursor:pointer; min-height:80px; background:rgba(0,0,0,0.6); z-index:2; }
+    #speaker { font-weight:bold; display:block; }
+    #chapterEnd { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.8); padding:20px; display:none; flex-direction:column; align-items:center; z-index:3; }
+    #chapterList button { margin:5px; }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="startScreen">
+      <h1>NOVEL TAG Visual Novel</h1>
+      <div id="chapterList"></div>
+    </div>
+    <div id="gameScreen">
+      <div id="background">
+        <div id="character"></div>
+      </div>
+      <div id="textBox">
+        <span id="speaker"></span>
+        <span id="message"></span>
+      </div>
+      <div id="chapterEnd">
+        <p id="chapterEndTitle"></p>
+        <button id="nextChapter">次の章へ</button>
+        <button id="backToStart">開始画面に戻る</button>
+      </div>
+    </div>
+  </div>
+  <script>
+  async function loadNovel() {
+    const res = await fetch('NOVEL_TAG.md');
+    const text = await res.text();
+    return parseNovel(text);
+  }
+
+  function parseNovel(text) {
+    const lines = text.split(/\r?\n/);
+    const chapters = [];
+    let chapter = null;
+    let scene = null;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (/^第.+章/.test(line)) {
+        if (scene) { chapter.scenes.push(scene); scene = null; }
+        if (chapter) chapters.push(chapter);
+        chapter = { title: line, scenes: [] };
+      } else if (line.startsWith('[background:')) {
+        if (scene) chapter.scenes.push(scene);
+        const bg = line.substring(12, line.length - 1);
+        scene = { bg: 'bg_' + bg + '.png', lines: [] };
+      } else if (line === '[narration]' || line.startsWith('[character:')) {
+        const speaker = line === '[narration]' ? 'Narration' : line.substring(11, line.length - 1);
+        const textLine = (lines[++i] || '').trim();
+        if (scene) scene.lines.push({ speaker, text: textLine });
+      }
+    }
+    if (scene) chapter.scenes.push(scene);
+    if (chapter) chapters.push(chapter);
+    return chapters;
+  }
+
+  let chapters = [];
+  let chapterIndex = 0;
+  let scenes = [];
+  let sceneIndex = 0;
+  let lineIndex = 0;
+
+  function getCharImage(name) {
+    return 'char_' + name + '.png';
+  }
+
+  function setScene(idx) {
+    const sc = scenes[idx];
+    document.getElementById('background').style.backgroundImage = 'url(' + sc.bg + ')';
+    lineIndex = 0;
+  }
+
+  function showLine() {
+    const scene = scenes[sceneIndex];
+    if (lineIndex < scene.lines.length) {
+      const line = scene.lines[lineIndex];
+      document.getElementById('speaker').textContent = line.speaker;
+      document.getElementById('message').textContent = line.text;
+      if (line.speaker !== 'Narration') {
+        document.getElementById('character').style.backgroundImage = 'url(' + getCharImage(line.speaker) + ')';
+      } else {
+        document.getElementById('character').style.backgroundImage = 'none';
+      }
+    } else if (sceneIndex < scenes.length - 1) {
+      sceneIndex++;
+      setScene(sceneIndex);
+      showLine();
+    } else {
+      document.getElementById('chapterEndTitle').textContent = chapters[chapterIndex].title + ' - 終了';
+      document.getElementById('chapterEnd').style.display = 'flex';
+    }
+  }
+
+  function showChapterButtons() {
+    const list = document.getElementById('chapterList');
+    list.innerHTML = '';
+    chapters.forEach((c, idx) => {
+      const btn = document.createElement('button');
+      btn.textContent = c.title;
+      btn.addEventListener('click', () => startGame(idx));
+      list.appendChild(btn);
+    });
+  }
+
+  async function startGame(startIdx) {
+    if (chapters.length === 0) {
+      chapters = await loadNovel();
+      showChapterButtons();
+    }
+    chapterIndex = startIdx;
+    scenes = chapters[chapterIndex].scenes;
+    sceneIndex = 0;
+    lineIndex = 0;
+    document.getElementById('chapterEnd').style.display = 'none';
+    document.getElementById('startScreen').style.display = 'none';
+    document.getElementById('gameScreen').style.display = 'flex';
+    setScene(sceneIndex);
+    showLine();
+  }
+
+  document.getElementById('textBox').addEventListener('click', () => {
+    const scene = scenes[sceneIndex];
+    if (lineIndex < scene.lines.length) {
+      lineIndex++;
+      showLine();
+    } else if (sceneIndex < scenes.length - 1) {
+      sceneIndex++;
+      setScene(sceneIndex);
+      showLine();
+    }
+  });
+
+  document.getElementById('nextChapter').addEventListener('click', () => {
+    if (chapterIndex < chapters.length - 1) {
+      chapterIndex++;
+      startGame(chapterIndex);
+    }
+  });
+
+  document.getElementById('backToStart').addEventListener('click', () => {
+    document.getElementById('gameScreen').style.display = 'none';
+    document.getElementById('startScreen').style.display = 'flex';
+  });
+
+  // load novel and prepare chapter buttons on startup
+  loadNovel().then(data => { chapters = data; showChapterButtons(); });
+  </script>
+</body>
+</html>
