@@ -5,21 +5,31 @@
 <title>ノベルゲーム</title>
 <style>
  body { margin:0; font-family:sans-serif; background:#000; color:#fff; }
- #bg { width:100%; height:60vh; background-size:cover; background-position:center; }
+ #bg { width:100%; height:60vh; background-size:cover; background-position:center; display:none; }
  #characters { position:relative; height:30vh; }
  #characters img { position:absolute; bottom:0; height:100%; opacity:0.6; transition:opacity 0.5s; }
  #characters img.active { opacity:1; }
- #textbox { position:relative; padding:10px; background:rgba(0,0,0,0.7); cursor:pointer; }
+ #textbox { position:relative; padding:10px; background:rgba(0,0,0,0.7); cursor:pointer; display:none; }
  #speaker { font-weight:bold; margin-right:10px; }
  #chapterInfo { position:absolute; top:40%; left:0; right:0; text-align:center; font-size:24px; background:rgba(0,0,0,0.7); padding:10px; display:none; }
  #credits { display:none; text-align:center; padding:20px; }
+ #titleScreen { text-align:center; padding:20px; }
+ #chapterEnd { position:absolute; top:40%; left:0; right:0; text-align:center; display:none; }
 </style>
 </head>
 <body>
+<div id="titleScreen">
+ <h1>ノベルゲーム</h1>
+ <ul id="chapterList"></ul>
+</div>
 <div id="bg"></div>
 <div id="characters"></div>
 <div id="chapterInfo"></div>
 <div id="textbox"><span id="speaker"></span><span id="text"></span></div>
+<div id="chapterEnd">
+ <button id="nextChapter">次の章へ</button>
+ <button id="backTitle">タイトルへ戻る</button>
+</div>
 <div id="credits">
  <p>--- 完 ---</p>
  <p>制作: Test Team</p>
@@ -32,14 +42,20 @@ const textEl = document.getElementById('text');
 const chapterInfoEl = document.getElementById('chapterInfo');
 const creditsEl = document.getElementById('credits');
 const textboxEl = document.getElementById('textbox');
+const titleScreen = document.getElementById('titleScreen');
+const chapterListEl = document.getElementById('chapterList');
+const chapterEndEl = document.getElementById('chapterEnd');
+const nextBtn = document.getElementById('nextChapter');
+const titleBtn = document.getElementById('backTitle');
 
 let chapters = [];
 let chapterIndex = 0;
 let lineIndex = 0;
 
-fetch('NOVEL_TAG.md').then(r => r.text()).then(parseScript).then(() => {
-  showChapter(0);
-});
+fetch('NOVEL_TAG.md')
+  .then(r => r.text())
+  .then(parseScript)
+  .then(showTitle);
 
 function parseScript(text){
   const lines = text.split(/\r?\n/);
@@ -77,7 +93,30 @@ function parseScript(text){
   if(current) chapters.push(current);
 }
 
+function showTitle(){
+  titleScreen.style.display = 'block';
+  bgEl.style.display = 'none';
+  textboxEl.style.display = 'none';
+  charsEl.style.display = 'none';
+  chapterEndEl.style.display = 'none';
+  creditsEl.style.display = 'none';
+  chapterListEl.innerHTML = '';
+  chapters.forEach((c, idx) => {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.textContent = c.title;
+    btn.onclick = () => showChapter(idx);
+    li.appendChild(btn);
+    chapterListEl.appendChild(li);
+  });
+}
+
 function showChapter(idx){
+  titleScreen.style.display = 'none';
+  chapterEndEl.style.display = 'none';
+  bgEl.style.display = 'block';
+  textboxEl.style.display = 'block';
+  charsEl.style.display = 'block';
   chapterIndex = idx;
   lineIndex = 0;
   chapterInfoEl.textContent = chapters[idx].title;
@@ -92,18 +131,26 @@ function showNextLine(){
   const chap = chapters[chapterIndex];
   if(!chap){ showCredits(); return; }
   if(lineIndex >= chap.lines.length){
-    if(++chapterIndex < chapters.length){
-      lineIndex = 0;
-      showChapter(chapterIndex);
-    } else {
-      showCredits();
-    }
+    chapterEndEl.style.display = 'block';
+    nextBtn.onclick = () => {
+      chapterEndEl.style.display = 'none';
+      if(chapterIndex + 1 < chapters.length){
+        showChapter(chapterIndex + 1);
+      } else {
+        showCredits();
+      }
+    };
+    titleBtn.onclick = () => {
+      chapterEndEl.style.display = 'none';
+      showTitle();
+    };
     return;
   }
   const line = chap.lines[lineIndex++];
   switch(line.type){
     case 'background':
-      bgEl.style.backgroundImage = `url(assets/backgrounds/${line.value}.jpg)`;
+      bgEl.style.backgroundImage = `url(assets/backgrounds/${line.value}.png)`;
+      charsEl.innerHTML = '';
       showNextLine();
       break;
     case 'dialogue':
@@ -139,13 +186,18 @@ function showCharacter(name){
   img.classList.add('active');
 }
 
-textboxEl.addEventListener('click', showNextLine);
+textboxEl.addEventListener('click', () => {
+  if(chapterEndEl.style.display === 'block') return;
+  showNextLine();
+});
 
 function showCredits(){
   textboxEl.style.display = 'none';
   charsEl.style.display = 'none';
   bgEl.style.display = 'none';
   chapterInfoEl.style.display = 'none';
+  chapterEndEl.style.display = 'none';
+  titleScreen.style.display = 'none';
   creditsEl.style.display = 'block';
 }
 </script>
